@@ -1,0 +1,13 @@
+Windows Registry Editor Version 5.00
+[HKEY_CLASSES_ROOT\dcnrdc]
+@="URL:dcnrdc Protocol"
+"Version"="1.0.0"
+"URL Protocol"=""
+
+[HKEY_CLASSES_ROOT\dcnrdc\DefaultIcon]
+@="c:\\testlink_dcnrdc\\dcnrdc.exe"
+
+[HKEY_CLASSES_ROOT\dcnrdc\shell]
+[HKEY_CLASSES_ROOT\dcnrdc\shell\open]
+[HKEY_CLASSES_ROOT\dcnrdc\shell\open\command]
+@="\"c:\\testlink_dcnrdc\\dcnrdc.exe\" \"%1\""

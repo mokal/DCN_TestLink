@@ -1,0 +1,4 @@
+0000000000000000000000000000000000000000 50fb8d9b33214a95051cf4ee29db07a4714dd8d7 mokal <mokalstudio@gmail.com> 1452650672 +0800	commit (initial): :neckbeard: Added .gitattributes & .gitignore files
+50fb8d9b33214a95051cf4ee29db07a4714dd8d7 1207681bf5c3859cb7fc419418c1c34745c463e9 mokal <mokalstudio@gmail.com> 1452652406 +0800	commit: Clone from DCN @13/1/2016 10:12
+1207681bf5c3859cb7fc419418c1c34745c463e9 d3485bcdbbf334cd2ac525c97b3326c28ddd52b0 mokal <mokalstudio@gmail.com> 1452654868 +0800	pull --progress --rebase --prune origin master: checkout d3485bcdbbf334cd2ac525c97b3326c28ddd52b0
+d3485bcdbbf334cd2ac525c97b3326c28ddd52b0 d3485bcdbbf334cd2ac525c97b3326c28ddd52b0 mokal <mokalstudio@gmail.com> 1452654869 +0800	rebase finished: returning to refs/heads/master
