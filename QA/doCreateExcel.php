@@ -24,8 +24,6 @@ if( $alldata == 0 ) {
     echo "</br><p align='center'>该时间段内没有执行记录，请重新选择时间段!</p>" ;
     echo "</br><p align='center'><a href='index.php'>BACK</a></p>";
 }else{
-echo "</br></br><p align='center'>该时间段内有" . $alldata ."条执行记录，正在生成Excel文件请稍等......</p>";
-
 ob_clean();
 $objPHPExcel = new PHPExcel();
 $objPHPExcel->getProperties()->setCreator('DCN TestLink')
@@ -37,7 +35,7 @@ $objPHPExcel->getDefaultStyle()->getAlignment()->setWrapText(TRUE);
 $objPHPExcel->setActiveSheetIndex(0);
 $objActSheet = $objPHPExcel->getActiveSheet();
 
-$objActSheet->mergeCells('A1:J1');
+$objActSheet->mergeCells('A1:K1');
 $objActSheet->setCellValue('A1', 'DCN测试中心确认测试执行情况:'.$time_start.'至'.$time_stop);
 
 $objActSheet->getStyle('A1')->getFont()->setBold(TRUE);
@@ -63,37 +61,40 @@ $objActSheet->getStyle('S2')->getFont()->setBold(TRUE);
 $objActSheet->getStyle('T2')->getFont()->setBold(TRUE);
 $objActSheet->getStyle('U2')->getFont()->setBold(TRUE);
 $objActSheet->getStyle('V2')->getFont()->setBold(TRUE);
+$objActSheet->getStyle('W2')->getFont()->setBold(TRUE);
 
 $objActSheet->setCellValue('A2', 'JobID');
-$objActSheet->setCellValue('B2', '测试计划');  
-$objActSheet->setCellValue('C2', '测试设备');
-$objActSheet->setCellValue('D2', '测试版本');  
-$objActSheet->setCellValue('E2', '模块');
-$objActSheet->setCellValue('F2', '拓扑类型');  
-$objActSheet->setCellValue('G2', '测试人员');
-$objActSheet->setCellValue('H2', '测试时间');
-$objActSheet->setCellValue('I2', '总用例');
-$objActSheet->setCellValue('J2', '已执行');
-$objActSheet->setCellValue('K2', 'Fail');
-$objActSheet->setCellValue('L2', '失败率%');
-$objActSheet->setCellValue('M2', '交换机Bug');
-$objActSheet->setCellValue('N2', '已知缺陷');
-$objActSheet->setCellValue('O2', '脚本问题');
-$objActSheet->setCellValue('P2', '产品差异');
-$objActSheet->setCellValue('Q2', '版本差异');
-$objActSheet->setCellValue('R2', '方案问题');
-$objActSheet->setCellValue('S2', '环境问题');
-$objActSheet->setCellValue('T2', '无效测试');
-$objActSheet->setCellValue('U2', '未分析');
-$objActSheet->setCellValue('V2', '未分析率');
+$objActSheet->setCellValue('B2', 'Notes');
+$objActSheet->setCellValue('C2', '测试计划');  
+$objActSheet->setCellValue('D2', '测试设备');
+$objActSheet->setCellValue('E2', '测试版本');  
+$objActSheet->setCellValue('F2', '模块');
+$objActSheet->setCellValue('G2', '拓扑类型');  
+$objActSheet->setCellValue('H2', '测试人员');
+$objActSheet->setCellValue('I2', '测试时间');
+$objActSheet->setCellValue('J2', '总用例');
+$objActSheet->setCellValue('K2', '已执行');
+$objActSheet->setCellValue('L2', 'Fail');
+$objActSheet->setCellValue('M2', '失败率%');
+$objActSheet->setCellValue('N2', '交换机Bug');
+$objActSheet->setCellValue('O2', '已知缺陷');
+$objActSheet->setCellValue('P2', '脚本问题');
+$objActSheet->setCellValue('Q2', '产品差异');
+$objActSheet->setCellValue('R2', '版本差异');
+$objActSheet->setCellValue('S2', '方案问题');
+$objActSheet->setCellValue('T2', '环境问题');
+$objActSheet->setCellValue('U2', '无效测试');
+$objActSheet->setCellValue('V2', '未分析');
+$objActSheet->setCellValue('W2', '未分析率');
 
 $objActSheet->getColumnDimension('A')->setWidth(22);
 $objActSheet->getColumnDimension('B')->setWidth(40);
 $objActSheet->getColumnDimension('C')->setWidth(40);
-$objActSheet->getColumnDimension('D')->setWidth(35);
-$objActSheet->getColumnDimension('E')->setWidth(15);
-$objActSheet->getColumnDimension('G')->setWidth(20);
+$objActSheet->getColumnDimension('D')->setWidth(40);
+$objActSheet->getColumnDimension('E')->setWidth(35);
+$objActSheet->getColumnDimension('F')->setWidth(15);
 $objActSheet->getColumnDimension('H')->setWidth(20);
+$objActSheet->getColumnDimension('I')->setWidth(20);
 
 $caseindex = 3;
 foreach($alldata as $resultdetail){
@@ -102,40 +103,41 @@ foreach($alldata as $resultdetail){
 		$objActSheet->getCell('A'.$caseindex)->getHyperlink()->setUrl('http://10.1.145.70/lib/results/dcnReport.php?format=0&tplan_id='.$resultdetail['tplan_id'].'&device_id='.$resultdetail['device_id'].'&topo_type=0&build_id='.$resultdetail['build_id']);
 		$objActSheet->getCell('A'.$caseindex)->getHyperlink()->getTooltip('查阅在线报告');
 	}
-	$objActSheet->setCellValue('B'.$caseindex, $resultdetail['testplan']);
-	$objActSheet->setCellValue('C'.$caseindex, $resultdetail['device']);
-	$objActSheet->setCellValue('D'.$caseindex, $resultdetail['build']);
-	$objActSheet->setCellValue('E'.$caseindex, $resultdetail['job_type']);
-	$objActSheet->setCellValue('F'.$caseindex, $resultdetail['topo_type']);  
-	$objActSheet->setCellValue('G'.$caseindex, $resultdetail['user']);
-	$objActSheet->setCellValue('H'.$caseindex, $resultdetail['job_startTime']);
-	$objActSheet->setCellValue('I'.$caseindex, $resultdetail['total']);
-	$objActSheet->setCellValue('J'.$caseindex, $resultdetail['runend']);
-	$objActSheet->setCellValue('K'.$caseindex, $resultdetail['fail']);
-	$objActSheet->setCellValue('L'.$caseindex, $resultdetail['fail']*100/($resultdetail['runend']+0.01));  #x*100/(y+0.01)
-	$objActSheet->setCellValue('M'.$caseindex, $resultdetail['switch']);
-	$objActSheet->setCellValue('N'.$caseindex, $resultdetail['accept']);
-	$objActSheet->setCellValue('O'.$caseindex, $resultdetail['script']);
-	$objActSheet->setCellValue('P'.$caseindex, $resultdetail['productdiff']);
-	$objActSheet->setCellValue('Q'.$caseindex, $resultdetail['versiondiff']);
-	$objActSheet->setCellValue('R'.$caseindex, $resultdetail['checklist']);
-	$objActSheet->setCellValue('S'.$caseindex, $resultdetail['environment']);
-	$objActSheet->setCellValue('T'.$caseindex, $resultdetail['na']);
-	$objActSheet->setCellValue('U'.$caseindex, $resultdetail['none']);
-	$objActSheet->setCellValue('V'.$caseindex, $resultdetail['none']*100/($resultdetail['fail']+0.01));
+	$objActSheet->setCellValue('B'.$caseindex, $resultdetail['endwhy']);
+	$objActSheet->setCellValue('C'.$caseindex, $resultdetail['testplan']);
+	$objActSheet->setCellValue('D'.$caseindex, $resultdetail['device']);
+	$objActSheet->setCellValue('E'.$caseindex, $resultdetail['build']);
+	$objActSheet->setCellValue('F'.$caseindex, $resultdetail['job_type']);
+	$objActSheet->setCellValue('G'.$caseindex, $resultdetail['topo_type']);  
+	$objActSheet->setCellValue('H'.$caseindex, $resultdetail['user']);
+	$objActSheet->setCellValue('I'.$caseindex, $resultdetail['job_startTime']);
+	$objActSheet->setCellValue('J'.$caseindex, $resultdetail['total']);
+	$objActSheet->setCellValue('K'.$caseindex, $resultdetail['runend']);
+	$objActSheet->setCellValue('L'.$caseindex, $resultdetail['fail']);
+	$objActSheet->setCellValue('M'.$caseindex, $resultdetail['fail']*100/($resultdetail['runend']+0.01));  #x*100/(y+0.01)
+	$objActSheet->setCellValue('N'.$caseindex, $resultdetail['switch']);
+	$objActSheet->setCellValue('O'.$caseindex, $resultdetail['accept']);
+	$objActSheet->setCellValue('P'.$caseindex, $resultdetail['script']);
+	$objActSheet->setCellValue('Q'.$caseindex, $resultdetail['productdiff']);
+	$objActSheet->setCellValue('R'.$caseindex, $resultdetail['versiondiff']);
+	$objActSheet->setCellValue('S'.$caseindex, $resultdetail['checklist']);
+	$objActSheet->setCellValue('T'.$caseindex, $resultdetail['environment']);
+	$objActSheet->setCellValue('U'.$caseindex, $resultdetail['na']);
+	$objActSheet->setCellValue('V'.$caseindex, $resultdetail['none']);
+	$objActSheet->setCellValue('W'.$caseindex, $resultdetail['none']*100/($resultdetail['fail']+0.01));
     ++$caseindex;
 }
 
 //设置居中
-$objActSheet->getStyle('A2:V'.$caseindex)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+$objActSheet->getStyle('A2:W'.$caseindex)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 
 //画出sheet的边框线条
 $styleArray = array('borders'=>array('allborders'=>array('style'=>PHPExcel_Style_Border::BORDER_THIN)));
 $caseindex =  $caseindex - 1;
-$objActSheet->getStyle('A1:V'.$caseindex)->applyFromArray($styleArray);
+$objActSheet->getStyle('A1:W'.$caseindex)->applyFromArray($styleArray);
 
 //设置自动筛选
-$objActSheet->setAutoFilter('A2:V2');
+$objActSheet->setAutoFilter('A2:W2');
 
 // Redirect output to a client’s web browser (Excel5)
 header('Content-Type: application/vnd.ms-excel;charset=utf-8');
@@ -176,6 +178,7 @@ function getMonthReport($tproject_id,$start,$end,$tplanname)
 	$returnrs = array() ;
 	if( $num != 0 ){
 		$returnrs['total']['user'] = 'DCN';
+		$returnrs['total']['endwhy'] = '';
 		$returnrs['total']['job_startTime'] = '';
 		$returnrs['total']['job_type'] = '确认测试' ;
 		$returnrs['total']['device'] = $num . "设备(次)" ;
@@ -187,7 +190,6 @@ function getMonthReport($tproject_id,$start,$end,$tplanname)
 		$returnrs['total']['total']=$returnrs['total']['runend']=$returnrs['total']['fail']= $returnrs['total']['switch'] =$returnrs['total']['accept']=$returnrs['total']['script']=$returnrs['total']['productdiff']=$returnrs['total']['versiondiff']=$returnrs['total']['checklist']=$returnrs['total']['environment']=$returnrs['total']['na']=0;
 		for( $i = 0; $i < $num; $i++ ){
 			$job = mysqli_fetch_assoc($result);
-			
 			$temp['user'] = $job['user'] ;
 			$temp['job_id'] = $job['job_id'] ;
 			if($job['topo_type'] == 0){ $temp['topo_type'] = '一般独立';}
@@ -195,6 +197,8 @@ function getMonthReport($tproject_id,$start,$end,$tplanname)
 			elseif($job['topo_type'] == 2){ $temp['topo_type'] = '独立跨板卡';}
 			elseif($job['topo_type'] == 3){ $temp['topo_type'] = '堆叠跨机架';}
 			else{ $temp['topo_type'] = $job['topo_type'];}
+			
+			$temp['endwhy'] = $job['endwhy'] ;
 			$temp['topo_type'] = $job['topo_type'] ;
 			$temp['job_startTime'] = $job['job_startTime'] ;
 			$temp['job_type'] = $job['job_type'] ;

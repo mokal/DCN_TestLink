@@ -401,15 +401,13 @@ function check_all_function_module() {
        		allcheckbox[i].checked = true;
        }
     }
-    var temp = document.getElementsByName("func_Aggregation");
+    var temp = document.getElementsByName("func_Aggregation_ixia");
     temp[0].checked = false;
     var temp = document.getElementsByName("func_dhcpsnooping");
     temp[0].checked = false;
     var temp = document.getElementsByName("func_keepalive_gateway");
     temp[0].checked = false;
-    var temp = document.getElementsByName("func_port_channel");
-    temp[0].checked = false;
-    var temp = document.getElementsByName("func_EgressACL");
+    var temp = document.getElementsByName("func_port_channel_ixia");
     temp[0].checked = false;
     var temp = document.getElementsByName("func_FastLink");
     temp[0].checked = false;
@@ -417,15 +415,9 @@ function check_all_function_module() {
     temp[0].checked = false;
     var temp = document.getElementsByName("func_Ipv4Pbr");
     temp[0].checked = false;
-    var temp = document.getElementsByName("func_MultiToOneVlanTranslation");
-    temp[0].checked = false;
     var temp = document.getElementsByName("func_QACL");
     temp[0].checked = false;
-    var temp = document.getElementsByName("func_QINQ");
-    temp[0].checked = false;
     var temp = document.getElementsByName("func_QoS");
-    temp[0].checked = false;
-    var temp = document.getElementsByName("func_SuperVlan");
     temp[0].checked = false;
 }
 
@@ -448,23 +440,15 @@ function switch_check_function_module() {
     temp[0].checked = false;
     var temp = document.getElementsByName("func_port_channel_ixia");
     temp[0].checked = false;
-    var temp = document.getElementsByName("func_EgressACL");
-    temp[0].checked = false;
     var temp = document.getElementsByName("func_FastLink");
     temp[0].checked = false;
     var temp = document.getElementsByName("func_Ipv4MulticastVlanPort");
     temp[0].checked = false;
     var temp = document.getElementsByName("func_Ipv4Pbr");
     temp[0].checked = false;
-    var temp = document.getElementsByName("func_MultiToOneVlanTranslation");
-    temp[0].checked = false;
     var temp = document.getElementsByName("func_QACL");
     temp[0].checked = false;
-    var temp = document.getElementsByName("func_QINQ");
-    temp[0].checked = false;
     var temp = document.getElementsByName("func_QoS");
-    temp[0].checked = false;
-    var temp = document.getElementsByName("func_SuperVlan");
     temp[0].checked = false;
 }
 
@@ -619,7 +603,7 @@ function checkInput(){
       var f8= document.getElementsByName("func_IsolatePort")[0].checked;
       var f9= document.getElementsByName("func_l2")[0].checked;
       var f10= document.getElementsByName("func_lldp")[0].checked;
-      var f11= document.getElementsByName("func_LocalProxyARP")[0].checked;
+      var f11= document.getElementsByName("func_LocalProxyArp")[0].checked;
       var f12= document.getElementsByName("func_loopbackdetection")[0].checked;
       f = f||f1||f2||f3||f4||f5||f6||f7||f8||f9||f10||f11||f12 ;
       var f1= document.getElementsByName("func_mirror")[0].checked;
@@ -639,7 +623,12 @@ function checkInput(){
       var f2= document.getElementsByName("func_VRRP")[0].checked;
       var f3= document.getElementsByName("func_Aggregation")[0].checked;
       var f4= document.getElementsByName("func_port_channel")[0].checked;
-      f = f||f1||f2||f3||f4 ;
+      var f5= document.getElementsByName("func_Ipv6L3")[0].checked;
+      var f6= document.getElementsByName("func_EgressACL")[0].checked;
+      var f7= document.getElementsByName("func_MultiToOneVlanTranslation")[0].checked;
+      var f8= document.getElementsByName("func_QINQ")[0].checked;
+      var f9= document.getElementsByName("func_SuperVlan")[0].checked;
+      f = f||f1||f2||f3||f4||f5||f6||f7||f8||f9 ;
       if(f){
           return ture;
       }else{
@@ -820,7 +809,7 @@ function checkInput_wireless(){
 	<td><input name="func_IsolatePort" type="checkbox" value="1" checked="checked" />IsolatePort</td>
     <td><input name="func_l2" type="checkbox" value="1" checked="checked" />l2</td>
 	<td><input name="func_lldp" type="checkbox" value="1" checked="checked" />lldp</td>
-	<td><input name="func_LocalProxyARP" type="checkbox" value="1" checked="checked" />LocalProxyARP</td>
+	<td><input name="func_LocalProxyArp" type="checkbox" value="1" checked="checked" />LocalProxyArp</td>
 	<td><input name="func_loopbackdetection" type="checkbox" value="1" checked="checked" />loopbackdetection</td>
    </tr>
    <tr>	
@@ -844,7 +833,7 @@ function checkInput_wireless(){
 	<td><input name="func_VRRP" type="checkbox" value="1" checked="checked" />VRRP</td>
 	<td><input name="func_Aggregation" type="checkbox" value="1" checked="checked" />Aggregation</td>
 	<td><input name="func_port_channel" type="checkbox" value="1" checked="checked" />port_channel</td>
-	<td></td>
+	<td><input name="func_Ipv6L3" type="checkbox" value="1" checked="checked" />Ipv6L3</td>
 	<td></td>
 	</tr>
 	<tr><td align="center" valign="center" colspan=6 ><span style="font-size: 14px;color:#E53333;"><strong>Moni  +  Ixia</strong></span></td></tr>
@@ -858,17 +847,17 @@ function checkInput_wireless(){
 	</tr>
 	<tr><td align="center" valign="center" colspan=6 ><span style="font-size: 14px;color:#E53333;"><strong>DautoV3  +  Dsend</strong></span></td></tr>
 	<tr>
-	<td><input name="func_EgressACL" type="checkbox" value="1" disabled />EgressACL</td>
+	<td><input name="func_EgressACL" type="checkbox" value="1" />EgressACL</td>
 	<td><input name="func_FastLink" type="checkbox" value="1" disabled />FastLink</td>
 	<td><input name="func_Ipv4MulticastVlanPort" type="checkbox" value="1" disabled />Ipv4MulticastVlanPort</td>
 	<td><input name="func_Ipv4Pbr" type="checkbox" value="1" disabled />Ipv4Pbr</td>
-	<td><input name="func_MultiToOneVlanTranslation" type="checkbox" value="1" disabled />MultiToOneVlanTranslation</td>
+	<td><input name="func_MultiToOneVlanTranslation" type="checkbox" value="1" />MultiToOneVlanTranslation</td>
 	<td><input name="func_QACL" type="checkbox" value="1" disabled />QACL</td>
 	</tr>
 	<tr>
-	<td><input name="func_QINQ" type="checkbox" value="1" disabled />QINQ</td>
+	<td><input name="func_QINQ" type="checkbox" value="1" />QINQ</td>
 	<td><input name="func_QoS" type="checkbox" value="1" disabled />QoS</td>
-	<td><input name="func_SuperVlan" type="checkbox" value="1" disabled />Supervlan</td>
+	<td><input name="func_SuperVlan" type="checkbox" value="1" />Supervlan</td>
 	<td></td>
 	<td></td>
 	<td></td>
@@ -889,6 +878,7 @@ function checkInput_wireless(){
 		<option value='131-11918'>武汉发包工具100.131:11918</option>
 		<option value='135-11918'>武汉发包工具100.135:11918</option>
 		<option value='135-11919'>武汉发包工具100.135:11919</option>
+		<option value='136-11918'>武汉发包工具100.136:11918</option>
 		<option value='136-11919'>武汉发包工具100.136:11919</option>
 		<option value='138-11918'>武汉发包工具100.138:11918</option>
 		<option value='138-11919'>武汉发包工具100.138:11919</option>
