@@ -882,6 +882,7 @@ function checkInput_wireless(){
 		<option value='136-11919'>武汉发包工具100.136:11919</option>
 		<option value='138-11918'>武汉发包工具100.138:11918</option>
 		<option value='138-11919'>武汉发包工具100.138:11919</option>
+		<option value='157-11918'>北京功能测试环境</option>
 		</select>
 </div>
 
@@ -1607,11 +1608,21 @@ commandlist.append(['enable','show run'])
 		<option value='2'>北京第二套环境</option>
 		<option value='3'>北京第三套环境</option>
         <option value='4'>北京第四套环境(云AC)</option>
+        <option value='5'>武汉第一套环境(桌子左侧区)</option>
+        <option value='6'>武汉第二套环境(桌子右侧区)</option>
 		</select>
 </div>
 
 <div id="wireless_submit" name="wireless_submit" align="center" style="display:none">
 <hr>
+设备恢复出厂<select id="affirmWirelessSetDefault" name='affirmWirelessSetDefault'>
+		<option value='1'>YES</option>
+		<option value='0'>No</option>
+		</select>
+设备自动升级<select id="affirmWirelessUpgrade" name='affirmWirelessUpgrade'>
+		<option value='0'>No</option>
+		<option value='1'>YES</option>
+		</select>
 <input type="submit" name="wirelesssubmit" id="wirelesssubmit" value="猛击开始测试" />
 <hr>
 </div>

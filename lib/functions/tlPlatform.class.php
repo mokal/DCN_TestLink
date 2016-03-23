@@ -2296,12 +2296,12 @@ public function createIssue($testcase, $step, $product, $script, $comment)
   }
   
   
-  public function addWirelessAffirmRun($job_id,$env_id,$s1ip,$s1name,$s1p1,$s2ip,$s2name,$s2p1,$s3ip,$s3name,$s3p1,$s3p2,$s3p3,$s3p4,$s3p5,$s3p6,$pc1,$tester_wired,$sta1,$sta2,$ap1,$ap1name,$ap2,$ap2name)
+  public function addWirelessAffirmRun($job_id,$env_id,$s1ip,$s1name,$s1p1,$s2ip,$s2name,$s2p1,$s3ip,$s3name,$s3p1,$s3p2,$s3p3,$s3p4,$s3p5,$s3p6,$pc1,$tester_wired,$sta1,$sta2,$ap1,$ap1name,$ap2,$ap2name,$setdefault,$upgrade)
   {
   	$debugMsg = 'Class:' . __CLASS__ . ' - Method: ' . __FUNCTION__;
   	$sql =  "/* $debugMsg */ INSERT INTO affirmwireless_exec_record " .
-  			" ( job_id,waffirmenv,s1ip,s1name,s1p1,s2ip,s2name,s2p1,s3ip,s3name,s3p1,s3p2,s3p3,s3p4,s3p5,s3p6,pc1ip,testerip_wired,sta1ip,sta2ip,ap1ip,ap1name,ap2ip,ap2name)" .
-  			" VALUES ( '{$job_id}','{$env_id}', '{$s1ip}', '{$s1name}', '{$s1p1}', '{$s2ip}', '{$s2name}', '{$s2p1}', '{$s3ip}', '{$s3name}', '{$s3p1}', '{$s3p2}', '{$s3p3}', '{$s3p4}', '{$s3p5}', '{$s3p6}', '{$pc1}', '{$tester_wired}', '{$sta1}' ,'{$sta2}', '{$ap1}', '{$ap1name}','{$ap2}','{$ap2name}' ) ";
+  			" ( job_id,waffirmenv,s1ip,s1name,s1p1,s2ip,s2name,s2p1,s3ip,s3name,s3p1,s3p2,s3p3,s3p4,s3p5,s3p6,pc1ip,testerip_wired,sta1ip,sta2ip,ap1ip,ap1name,ap2ip,ap2name,setdefault,upgrade)" .
+  			" VALUES ( '{$job_id}','{$env_id}', '{$s1ip}', '{$s1name}', '{$s1p1}', '{$s2ip}', '{$s2name}', '{$s2p1}', '{$s3ip}', '{$s3name}', '{$s3p1}', '{$s3p2}', '{$s3p3}', '{$s3p4}', '{$s3p5}', '{$s3p6}', '{$pc1}', '{$tester_wired}', '{$sta1}' ,'{$sta2}', '{$ap1}', '{$ap1name}','{$ap2}','{$ap2name}','{$setdefault}','{$upgrade}' ) ";
   	return $this->db->exec_query($sql);
   }
   

@@ -54,8 +54,11 @@ else{
     $ap1name = $_POST['waffirmap1name'];
     $ap2name = $_POST['waffirmap2name'];
     
+    $setdefault = $_POST['affirmWirelessSetDefault'];
+    $upgrade = $_POST['affirmWirelessUpgrade'];
+    
     $platform_mgr->addJob($jobid,'all', $job_type, $total_case, $args->productline_id, $args->tplan_id, $args->device_id, $args->build_id, $args->user_name, $client_ip,$suite);
-    $platform_mgr->addWirelessAffirmRun($jobid,$env_id,$s1ip,$s1name,$s1p1,$s2ip,$s2name,$s2p1,$s3ip,$s3name,$s3p1,$s3p2,$s3p3,$s3p4,$s3p5,$s3p6,$pc1,$tester_wired,$sta1,$sta2,$ap1,$ap1name,$ap2,$ap2name);
+    $platform_mgr->addWirelessAffirmRun($jobid,$env_id,$s1ip,$s1name,$s1p1,$s2ip,$s2name,$s2p1,$s3ip,$s3name,$s3p1,$s3p2,$s3p3,$s3p4,$s3p5,$s3p6,$pc1,$tester_wired,$sta1,$sta2,$ap1,$ap1name,$ap2,$ap2name,$setdefault,$upgrade);
     
     echo "<script> {parent.treeframe.location.href='dcnrdc://{$jobid}';this.location.href='/lib/dcnJobs/jobsView.php';} </script>";
 
