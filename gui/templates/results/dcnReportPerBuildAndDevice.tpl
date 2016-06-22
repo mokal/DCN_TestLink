@@ -54,13 +54,6 @@ function selectTag(showContent,selfObj){
 {if $gui->do_report.status_ok}
 
    <hr>
-   {* ----summary------- *}
-    <strong>测试结论:</strong>
-	{$gui->testresult}
-    <br><strong>分析与总结:</strong><br>
-     {nl2br($gui->resultsummary)}
-   <hr>
-
    <strong>结果统计:</strong><inpput type='button'><a href='/lib/results/dcnReportDownloadExcel.php?format={$selectedReportType}&amp;tplan_id={$gui->tplan_id}' target='_black'>点击下载Excel报告</a></input>
 	<table class="simple_tableruler sortable" style="text-align:left; margin-left: 2px;">
 		<tr>

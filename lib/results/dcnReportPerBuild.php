@@ -85,13 +85,6 @@ if( !is_null($gui->platformSet) )
       }
 }
 
-$tempa = $tplan_mgr->get_build_testresult($build_id);
-$tempb = $tplan_mgr->get_build_resultsummary($build_id);
-$gui->testresult = !is_null($tempa)? htmlspecialchars($tempa['value']):'<span style="color:#E53333">版本测试结果未分析</span>';
-$gui->resultsummary = !is_null($tempa)? htmlspecialchars_decode($tempb['value']):'';
-unset($tempa);
-unset($tempb);
-
 $timerOff = microtime(true);
 $gui->elapsed_time = round($timerOff - $timerOn,2);
 $smarty = new TLSmarty;

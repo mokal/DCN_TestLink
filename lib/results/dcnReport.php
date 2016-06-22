@@ -33,13 +33,6 @@ $gui->needstack = $args->stack;
 $gui->build_by_id = $tplan_mgr->get_build_by_id($args->tplan_id,$args->build_id);
 $gui->suites = $tplan_mgr->get_all_suites();
 $platformSet = $tplan_mgr->getPlatforms($args->tplan_id,array('outputFormat' => 'map'));
-if( $args->build_id != 1 && $gui->needstack == 0){
-    $gui->build_result = $tplan_mgr->get_build_result($args->build_id,$gui->device_id);
-    $gui->build_result_summary = $tplan_mgr->get_build_result_summary($args->build_id,$gui->device_id);
-    $gui->build_reviewer = $tplan_mgr->get_build_reviewer($args->build_id,$gui->device_id);
-    $gui->build_review_summary = $tplan_mgr->get_build_review_summary($args->build_id,$gui->device_id);
-    $gui->build_timePoint = $tplan_mgr->get_build_timePoint($args->build_id);
-}
 
 if($args->device_id == '1'){
     $gui->alldevice = $platformSet;

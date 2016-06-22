@@ -1537,6 +1537,7 @@ class TestlinkXMLRPCServer extends IXR_Server
     $productLine = $args['productLine']; 
     $testPlan = $args['testPlan']; 
     $testDevice = $args['testDevice']; 
+    $testBuild = $args['testBuild']; 
 
     $user = $args['user']; 
 
@@ -1564,6 +1565,14 @@ class TestlinkXMLRPCServer extends IXR_Server
         return $resultInfo;
     }
 
+    $sql = "SELECT id FROM {$this->tables['builds']} WHERE name='{$testBuild}' " ;
+    $build_id = $this->dbObj->fetchFirstRow($sql);
+    if( !$build_id ){
+        $resultInfo[0]["status"] = false;
+        $resultInfo[0]["message"] = 'test build not exist!';
+        return $resultInfo;
+    }
+
     $sql = "SELECT id FROM {$this->tables['users']} WHERE login='{$user}' " ;
     $user_id = $this->dbObj->fetchFirstRow($sql);
     if( !$user_id ){
@@ -1578,8 +1587,7 @@ class TestlinkXMLRPCServer extends IXR_Server
        $this->platformMgr = new tlPlatform($this->dbObj,$productline_id['id']);
     }
  
-    $total_case = $this->platformMgr->getJobTotalCase($tplan_id['id'], $device_id['id'],'affirm2');
-
+    $total_case = $this->platformMgr->getJobTotalCase($tplan_id['id'],$device_id['id'],$build_id['id'],'affirm2','all',0,0);
     $this->platformMgr->addJob($jobid, 'affirm2', $total_case, $productline_id['id'], $tplan_id['id'], $device_id['id'], '0', $args['user'], $args['vdi_ip']);
 
     $this->platformMgr->addAffirm2Run($jobid, $args['s1ip'], $args['s2ip'], '5980R2', '', '', $args['s1p1'], $args['s1p2'], $args['s1p3'], $args['s2p1'], $args['s2p2'], $args['s2p3'], $args['ixia_ip'], $args['tp1'], $args['tp2'],'','');

@@ -50,7 +50,6 @@ window.onload=function()
   
   {* the configured authentication method don't allow users to reset his/her password *}    
   {if $gui->external_password_mgmt eq 0 && $tlCfg->demoMode eq 0}
-    <a href="lostPassword.php">{$labels.lost_password_q}</a>
   </p>
   {/if}
   

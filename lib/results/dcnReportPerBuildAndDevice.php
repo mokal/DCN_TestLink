@@ -84,12 +84,6 @@ if( !is_null($gui->platformSet) )
        // $gui->test_env[$deviceid] = $tplan_mgr->get_exec_env($build_id,$deviceid);
       }
 }
-$tempa = $tplan_mgr->get_build_testresult($build_id);
-$tempb = $tplan_mgr->get_build_resultsummary($build_id);
-$gui->testresult = !is_null($tempa)? htmlspecialchars($tempa['value']):'<span style="color:#E53333">版本测试结果未分析</span>';
-$gui->resultsummary = !is_null($tempa)? htmlspecialchars_decode($tempb['value']):'';
-unset($tempa);
-unset($tempb);
 
 $gui->test_topo = '/affirm2.png';
 $time = $tplan_mgr->get_build_timePoint($build_id);

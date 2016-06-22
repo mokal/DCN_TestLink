@@ -856,27 +856,30 @@ $tlCfg->guiTopMenu[6] = array('label' => 'title_execute',
                               'right' => 'testplan_execute','condition'=>'TestPlanAvailable',
                               'shortcut'=>'e','target'=>'mainframe'); 
 
-$tlCfg->guiTopMenu[7] = array('label' => 'title_results',
+$tlCfg->guiTopMenu[7] = array('label' => 'title_dcnjob','url' => 'lib/dcnJobs/jobsView.php',
+                              'right' => null,'condition'=>'','shortcut'=>'i','target'=>'mainframe'); 
+							  
+$tlCfg->guiTopMenu[8] = array('label' => 'title_results',
                               'url' => 'lib/general/frmWorkArea.php?feature=showMetrics',
                               'right' => 'testplan_metrics','condition'=>'TestPlanAvailable',
                               'shortcut'=>'r','target'=>'mainframe'); 
 
-$tlCfg->guiTopMenu[8] = array('label' => 'title_dcnjob','url' => 'lib/dcnJobs/jobsView.php',
+$tlCfg->guiTopMenu[9] = array('label' => 'title_dcnresults','url' => 'lib/dcnResult/dcnResult.php',
                               'right' => null,'condition'=>'','shortcut'=>'i','target'=>'mainframe'); 
 
-$tlCfg->guiTopMenu[9] = array('label' => 'title_dcnissue','url' => 'lib/dcnIssue/issueView.php',
+$tlCfg->guiTopMenu[10] = array('label' => 'title_dcnissue','url' => 'lib/dcnIssue/issueView.php',
                               'right' => null,'condition'=>'','shortcut'=>'i','target'=>'mainframe'); 
 
-$tlCfg->guiTopMenu[10] = array('label' => 'title_monthreport','url' => 'lib/dcnMonthReport/viewMonthReport.php',
+$tlCfg->guiTopMenu[11] = array('label' => 'title_monthreport','url' => 'lib/dcnMonthReport/viewMonthReport.php',
                               'right' => null,'condition'=>'','shortcut'=>'i','target'=>'mainframe'); 
 
 
-$tlCfg->guiTopMenu[11] = array('label' => 'title_admin',
+$tlCfg->guiTopMenu[12] = array('label' => 'title_admin',
                               'url' => 'lib/usermanagement/usersView.php',
                               'right' => 'mgt_users','condition'=>'',
                               'shortcut'=>'u','target'=>'mainframe'); 
 
-$tlCfg->guiTopMenu[12] = array('label' => 'title_events',
+$tlCfg->guiTopMenu[13] = array('label' => 'title_events',
                               'url' => 'lib/events/eventviewer.php',
                               'right' => array('events_mgt', 'mgt_view_events'),'condition'=>'',
                               'shortcut'=>'v','target'=>'mainframe'); 

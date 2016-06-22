@@ -328,7 +328,7 @@ $(document).ready(function(){
        if( envno==0 ){
  			$("#submit").hide();
  			$("#functionEnv").hide();
-        }else{                   
+        }else{
              $("#submit").show();
              $("#functionEnv").show();
              if( poncat_var == 1 ){
@@ -401,23 +401,104 @@ function check_all_function_module() {
        		allcheckbox[i].checked = true;
        }
     }
-    var temp = document.getElementsByName("func_Aggregation_ixia");
+    var temp = document.getElementsByName("func_Anti-arpscan");
     temp[0].checked = false;
-    var temp = document.getElementsByName("func_dhcpsnooping");
+    var temp = document.getElementsByName("func_Anycast_RP");
     temp[0].checked = false;
-    var temp = document.getElementsByName("func_keepalive_gateway");
+    var temp = document.getElementsByName("func_IPv6_Anycast_RP");
     temp[0].checked = false;
-    var temp = document.getElementsByName("func_port_channel_ixia");
+    var temp = document.getElementsByName("func_BFD");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_DosAttack");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_EgressPolicy");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_Igmpproxy");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_IGMPv1v2");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_IGMPv3");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_ipv4staticmulticast");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_ipv6dcscm");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_Ipv6MulticastBorder");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_ipv6multicasttunnel");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_ipv6pimssm");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_ipv6staticmulticast");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_ipv6tunnel");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_mldsnooping");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_MulticastBorder");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_multicastvlan");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_ipv6multicastvlan");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_PIM-DM");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_PIM-DMv6");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_pimsm");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_pimssm");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_StaticMulticastMac");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_summer-time");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_uldp");
+    temp[0].checked = false;
+
+    var temp = document.getElementsByName("func_BGP");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_DHCP_Relay");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_DHCPSnoopingBinding");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_GreTunnel");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_ip-cluster");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_OSPFv3");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_RIP");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_RIPng");
+    temp[0].checked = false;
+    
+    var temp = document.getElementsByName("func_erspan");
     temp[0].checked = false;
     var temp = document.getElementsByName("func_FastLink");
     temp[0].checked = false;
+    var temp = document.getElementsByName("func_gmrp");
+    temp[0].checked = false;
     var temp = document.getElementsByName("func_Ipv4MulticastVlanPort");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_Ipv6MulticastVlanPort");
     temp[0].checked = false;
     var temp = document.getElementsByName("func_Ipv4Pbr");
     temp[0].checked = false;
-    var temp = document.getElementsByName("func_QACL");
+    var temp = document.getElementsByName("func_Ipv6Pbr");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_L3urpf");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_LldpMED");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_MSDP");
     temp[0].checked = false;
     var temp = document.getElementsByName("func_QoS");
+    temp[0].checked = false;
+    
+    var temp = document.getElementsByName("func_DhcpServer");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_ospfgr");
     temp[0].checked = false;
 }
 
@@ -432,23 +513,104 @@ function switch_check_function_module() {
           }
        }
     }
-    var temp = document.getElementsByName("func_Aggregation_ixia");
+    var temp = document.getElementsByName("func_Anti-arpscan");
     temp[0].checked = false;
-    var temp = document.getElementsByName("func_dhcpsnooping");
+    var temp = document.getElementsByName("func_Anycast_RP");
     temp[0].checked = false;
-    var temp = document.getElementsByName("func_keepalive_gateway");
+    var temp = document.getElementsByName("func_IPv6_Anycast_RP");
     temp[0].checked = false;
-    var temp = document.getElementsByName("func_port_channel_ixia");
+    var temp = document.getElementsByName("func_BFD");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_DosAttack");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_EgressPolicy");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_Igmpproxy");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_IGMPv1v2");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_IGMPv3");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_ipv4staticmulticast");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_ipv6dcscm");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_Ipv6MulticastBorder");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_ipv6multicasttunnel");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_ipv6pimssm");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_ipv6staticmulticast");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_ipv6tunnel");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_mldsnooping");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_MulticastBorder");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_multicastvlan");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_ipv6multicastvlan");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_PIM-DM");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_PIM-DMv6");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_pimsm");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_pimssm");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_StaticMulticastMac");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_summer-time");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_uldp");
+    temp[0].checked = false;
+
+    var temp = document.getElementsByName("func_BGP");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_DHCP_Relay");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_DHCPSnoopingBinding");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_GreTunnel");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_ip-cluster");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_OSPFv3");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_RIP");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_RIPng");
+    temp[0].checked = false;
+    
+    var temp = document.getElementsByName("func_erspan");
     temp[0].checked = false;
     var temp = document.getElementsByName("func_FastLink");
     temp[0].checked = false;
+    var temp = document.getElementsByName("func_gmrp");
+    temp[0].checked = false;
     var temp = document.getElementsByName("func_Ipv4MulticastVlanPort");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_Ipv6MulticastVlanPort");
     temp[0].checked = false;
     var temp = document.getElementsByName("func_Ipv4Pbr");
     temp[0].checked = false;
-    var temp = document.getElementsByName("func_QACL");
+    var temp = document.getElementsByName("func_Ipv6Pbr");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_L3urpf");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_LldpMED");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_MSDP");
     temp[0].checked = false;
     var temp = document.getElementsByName("func_QoS");
+    temp[0].checked = false;
+    
+    var temp = document.getElementsByName("func_DhcpServer");
+    temp[0].checked = false;
+    var temp = document.getElementsByName("func_ospfgr");
     temp[0].checked = false;
 }
 
@@ -773,6 +935,23 @@ function checkInput_wireless(){
 
 <div id="submit" name="submit" align="center"  style="display:none" >
 <hr>
+<input name="SkipCheckTopology" type="checkbox" value="1" />跳过拓扑检查  |  
+<input name="SkipReload" type="checkbox" value="1" />跳过设备重启  |  
+<input name="SkipInitConfig" type="checkbox" value="1" />跳过初始配置  |  
+<input name="EnableWatchdog" type="checkbox" value="1" />使能WatchDog  |  
+<input name="EnablePauseWhenError" type="checkbox" value="1" />使能遇错就停
+<hr>
+<select id="topoType" name="topoType" style="font-size: 15px;color:#E53333;{if $gui->build_is_dynamic_create eq 1}display:none"{else}"{/if}>
+		<option  style="font-size: 15px;color:#E53333;" value='0'><strong>独立模式不跨板卡</strong></option>
+		<option  style="font-size: 15px;color:#E53333;" value='1'><strong>堆叠模式不跨机架</strong></option>
+		<option  style="font-size: 15px;color:#E53333;" value='2'><strong>独立模式跨板卡</strong></option>
+		<option  style="font-size: 15px;color:#E53333;" value='3'><strong>堆叠模式跨机架</strong></option>
+		</select>
+
+<select id="continueRun" name="continueRun" style="font-size: 15px;color:#E53333;{if $gui->build_is_dynamic_create eq 1}display:none"{else}"{/if}>
+		<option  style="font-size: 15px;color:#E53333;" value='0' selected='selected'><strong>初始执行</strong></option>
+		<option  style="font-size: 15px;color:#E53333;" value='1'><strong>继续执行</strong></option>
+		</select>
 <input type="submit" name="switchsubmit" id="switchsubmit"  value="猛击开始测试" />
 <hr>
 </div>
@@ -781,83 +960,162 @@ function checkInput_wireless(){
  <table border="1"><tbody>
   <tr><td align="center" valign="center" colspan=6 ><span style="font-size: 14px;color:#E53333;"><strong>Moni  +  Dsend</strong></span></td></tr>
   <tr>
+    <td><input name="func_Aggregation" type="checkbox" value="1" checked="checked" />Aggregation</td>
 	<td><input name="func_Am" type="checkbox" value="1" checked="checked" />Am</td>
+	<td><input name="func_Anti-arpscan" type="checkbox" value="1" disabled />Anti-arpscan</td>
+	<td><input name="func_Anycast_RP" type="checkbox" value="1" disabled />Anycast_RP</td>
+	<td><input name="func_IPv6_Anycast_RP" type="checkbox" value="1" disabled />IPv6_Anycast_RP</td>
 	<td><input name="func_Arp" type="checkbox" value="1" checked="checked" />Arp</td>
+   </tr>
+   <tr>
 	<td><input name="func_ArpGuard" type="checkbox" value="1" checked="checked" />ArpGuard</td>
+	<td><input name="func_BFD" type="checkbox" value="1" disabled />BFD</td>	
 	<td><input name="func_DCSCM" type="checkbox" value="1" checked="checked" />DCSCM</td>
+	<td><input name="func_DosAttack" type="checkbox" value="1" disabled />DosAttack</td>
 	<td><input name="func_dynamicVlan" type="checkbox" value="1" checked="checked" />dynamicVlan</td>
+	<td><input name="func_ECMP" type="checkbox" value="1" checked="checked" />ECMP</td>
+   </tr>
+   <tr>
+	<td><input name="func_EgressPolicy" type="checkbox" value="1" disabled />EgressPolicy</td>
 	<td><input name="func_FBR" type="checkbox" value="1" checked="checked" />FBR</td>
-  </tr>
-  <tr>
+	<td><input name="func_FlexibleQinQ" type="checkbox" value="1" checked="checked" />FlexibleQinQ</td>
 	<td><input name="func_GratuitousArp" type="checkbox" value="1" checked="checked" />GratuitousArp</td>
 	<td><input name="func_icmpv6" type="checkbox" value="1" checked="checked" />icmpv6</td>
+	<td><input name="func_Igmpproxy" type="checkbox" value="1" disabled />Igmpproxy</td>
+   </tr>
+   <tr>
 	<td><input name="func_igmpsnooping" type="checkbox" value="1" checked="checked" />igmpsnooping</td>
+	<td><input name="func_IGMPv1v2" type="checkbox" value="1" disabled />IGMPv1v2</td>
+	<td><input name="func_IGMPv3" type="checkbox" value="1" disabled />IGMPv3</td>
     <td><input name="func_ipv4acl" type="checkbox" value="1" checked="checked" />ipv4acl</td>
 	<td><input name="func_Ipv4Icmp" type="checkbox" value="1" checked="checked" />Ipv4Icmp</td>
 	<td><input name="func_Ipv4Ipv6Host" type="checkbox" value="1" checked="checked" />Ipv4Ipv6Host</td>
-  </tr>
-  <tr>
+   </tr>
+   <tr>
+	<td><input name="func_ipv4staticmulticast" type="checkbox" value="1" disabled />ipv4staticmulticast</td>
 	<td><input name="func_ipv4staticroute" type="checkbox" value="1" checked="checked" />ipv4staticroute</td>
 	<td><input name="func_ipv4v6blackholeroute" type="checkbox" value="1" checked="checked" />ipv4v6blackholeroute</td>
 	<td><input name="func_ipv6acl" type="checkbox" value="1" checked="checked" />ipv6acl</td>
     <td><input name="func_Ipv6Address" type="checkbox" value="1" checked="checked" />Ipv6Address</td>
-	<td><input name="func_Ipv6Nd" type="checkbox" value="1" checked="checked" />Ipv6Nd</td>
-	<td><input name="func_Ipv6StaticRouting" type="checkbox" value="1" checked="checked" />Ipv6StaticRouting</td>
+    <td><input name="func_ipv6dcscm" type="checkbox" value="1" disabled />ipv6dcscm</td>
    </tr>
    <tr>
+    <td><input name="func_Ipv6L3" type="checkbox" value="1" checked="checked" />Ipv6L3</td>
+    <td><input name="func_Ipv6MulticastBorder" type="checkbox" value="1" disabled />Ipv6MulticastBorder</td>
+    <td><input name="func_ipv6multicasttunnel" type="checkbox" value="1" disabled />ipv6multicasttunnel</td>    
+	<td><input name="func_Ipv6Nd" type="checkbox" value="1" checked="checked" />Ipv6Nd</td>
+	<td><input name="func_ipv6pimssm" type="checkbox" value="1" disabled />ipv6pimssm</td>
+	<td><input name="func_ipv6staticmulticast" type="checkbox" value="1" disabled />ipv6staticmulticast</td>
+   </tr>
+   <tr>
+	<td><input name="func_Ipv6StaticRouting" type="checkbox" value="1" checked="checked" />Ipv6StaticRouting</td>
+    <td><input name="func_ipv6tunnel" type="checkbox" value="1" disabled />ipv6tunnel</td>
 	<td><input name="func_Ipv6vrrp" type="checkbox" value="1" checked="checked" />Ipv6vrrp</td>
 	<td><input name="func_IsolatePort" type="checkbox" value="1" checked="checked" />IsolatePort</td>
     <td><input name="func_l2" type="checkbox" value="1" checked="checked" />l2</td>
+    <td><input name="func_L3ForwardIpv4" type="checkbox" value="1" checked="checked" />L3ForwardIpv4</td>
+   </tr>
+   <tr>
 	<td><input name="func_lldp" type="checkbox" value="1" checked="checked" />lldp</td>
 	<td><input name="func_LocalProxyArp" type="checkbox" value="1" checked="checked" />LocalProxyArp</td>
 	<td><input name="func_loopbackdetection" type="checkbox" value="1" checked="checked" />loopbackdetection</td>
-   </tr>
-   <tr>	
 	<td><input name="func_mirror" type="checkbox" value="1" checked="checked" />mirror</td>
+	<td><input name="func_mldsnooping" type="checkbox" value="1" disabled />mldsnooping</td>
 	<td><input name="func_mrpp" type="checkbox" value="1" checked="checked" />mrpp</td>
+   </tr>
+   <tr>
 	<td><input name="func_mstp" type="checkbox" value="1" checked="checked" />mstp</td>
+	<td><input name="func_MulticastBorder" type="checkbox" value="1" disabled />MulticastBorder</td>
+	<td><input name="func_multicastvlan" type="checkbox" value="1" disabled />multicastvlan</td>
+	<td><input name="func_ipv6multicastvlan" type="checkbox" value="1" disabled />ipv6multicastvlan</td>
+	<td><input name="func_PIM-DM" type="checkbox" value="1" disabled />PIM-DM</td>
+	<td><input name="func_PIM-DMv6" type="checkbox" value="1" disabled />PIM-DMv6</td>
+   </tr>
+   <tr>
+	<td><input name="func_pimsm" type="checkbox" value="1" disabled />pimsm</td>
+	<td><input name="func_pimssm" type="checkbox" value="1" disabled />pimssm</td>
+	<td><input name="func_port_channel" type="checkbox" value="1" checked="checked" />port_channel</td>
 	<td><input name="func_PortStatistic" type="checkbox" value="1" checked="checked" />PortStatistic</td>
 	<td><input name="func_PortVlanIpLimit" type="checkbox" value="1" checked="checked" />PortVlanIpLimit</td>
 	<td><input name="func_PreventARPSboofing" type="checkbox" value="1" checked="checked" />PreventARPSboofing</td>
-	</tr>
-	<tr>
+   </tr>
+   <tr>
 	<td><input name="func_PreventNDSboofing" type="checkbox" value="1" checked="checked" />PreventNDSboofing</td>
     <td><input name="func_rate_violation" type="checkbox" value="1" checked="checked" />rate_violation</td>
 	<td><input name="func_RSPAN" type="checkbox" value="1" checked="checked" />RSPAN</td>
 	<td><input name="func_security-ra" type="checkbox" value="1" checked="checked" />security-ra</td>
+	<td><input name="func_StaticMulticastMac" type="checkbox" value="1" disabled />StaticMulticastMac</td>
+	<td><input name="func_summer-time" type="checkbox" value="1" disabled />summer-time</td>
+   </tr>
+   <tr>
+	<td><input name="func_uldp" type="checkbox" value="1" disabled />uldp</td>
 	<td><input name="func_ULPP" type="checkbox" value="1" checked="checked" />ULPP</td>
 	<td><input name="func_vlan" type="checkbox" value="1" checked="checked" />vlan</td>
-	</tr>
-	<tr>
 	<td><input name="func_vlan_acl" type="checkbox" value="1" checked="checked" />vlan_acl</td>
 	<td><input name="func_VRRP" type="checkbox" value="1" checked="checked" />VRRP</td>
-	<td><input name="func_Aggregation" type="checkbox" value="1" checked="checked" />Aggregation</td>
-	<td><input name="func_port_channel" type="checkbox" value="1" checked="checked" />port_channel</td>
-	<td><input name="func_Ipv6L3" type="checkbox" value="1" checked="checked" />Ipv6L3</td>
 	<td></td>
 	</tr>
-	<tr><td align="center" valign="center" colspan=6 ><span style="font-size: 14px;color:#E53333;"><strong>Moni  +  Ixia</strong></span></td></tr>
+	<tr><td align="center" valign="center" colspan=6 >
+	<span style="font-size: 14px;color:#E53333;"><strong>Moni  +  Ixia</strong></span><br />
+	<span style="font-size: 14px;color:#E53333;">(如果连跑IXIA模块，请确保所选环境的[ IxiaIp/IxiaTP1-4 ]五个参数有正确的实际连线)</span>
+	</td></tr>
 	<tr>
-	<td><input name="func_Aggregation_ixia" type="checkbox" value="1" disabled />Aggregation</td>
-	<td><input name="func_dhcpsnooping" type="checkbox" value="1" disabled />dhcpsnooping</td>
-	<td><input name="func_keepalive_gateway" type="checkbox" value="1" disabled />keepalive_gateway</td>
-	<td><input name="func_port_channel_ixia" type="checkbox" value="1" disabled />port_channel</td>
+	<td><input name="func_BGP" type="checkbox" value="1" disabled />BGP</td>
+	<td><input name="func_DHCP_Relay" type="checkbox" value="1" disabled />DHCP_Relay</td>
+	<td><input name="func_dhcpsnooping" type="checkbox" value="1" />dhcpsnooping</td>
+	<td><input name="func_DHCPSnoopingBinding" type="checkbox" value="1" disabled />DHCPSnoopingBinding</td>
+	<td><input name="func_GreTunnel" type="checkbox" value="1" disabled />GreTunnel</td>
+	<td><input name="func_ip-cluster" type="checkbox" value="1" disabled />ip-cluster</td>
+	</tr>
+	<tr>
+	<td><input name="func_jumbo" type="checkbox" value="1" />jumbo</td>
+	<td><input name="func_keepalive_gateway" type="checkbox" value="1" />keepalive_gateway</td>
+	<td><input name="func_ospf" type="checkbox" value="1" />ospf</td>
+	<td><input name="func_OSPFv3" type="checkbox" value="1" disabled />OSPFv3</td>
+	<td><input name="func_port_channel_ixia" type="checkbox" value="1" />port_channel</td>
+	<td><input name="func_RIP" type="checkbox" value="1" disabled />RIP</td>
+	</tr>
+	<tr>
+	<td><input name="func_RIPng" type="checkbox" value="1" disabled />RIPng</td>
+	<td></td>
+	<td></td>
+	<td></td>
 	<td></td>
 	<td></td>
 	</tr>
 	<tr><td align="center" valign="center" colspan=6 ><span style="font-size: 14px;color:#E53333;"><strong>DautoV3  +  Dsend</strong></span></td></tr>
 	<tr>
 	<td><input name="func_EgressACL" type="checkbox" value="1" />EgressACL</td>
+	<td><input name="func_erspan" type="checkbox" value="1" disabled />erspan</td>
 	<td><input name="func_FastLink" type="checkbox" value="1" disabled />FastLink</td>
+	<td><input name="func_gmrp" type="checkbox" value="1" disabled />gmrp</td>
 	<td><input name="func_Ipv4MulticastVlanPort" type="checkbox" value="1" disabled />Ipv4MulticastVlanPort</td>
+	<td><input name="func_Ipv6MulticastVlanPort" type="checkbox" value="1" disabled />Ipv6MulticastVlanPort</td>
+	</tr>
+	<tr>
 	<td><input name="func_Ipv4Pbr" type="checkbox" value="1" disabled />Ipv4Pbr</td>
+	<td><input name="func_Ipv6Pbr" type="checkbox" value="1" disabled />Ipv6Pbr</td>
+	<td><input name="func_L3urpf" type="checkbox" value="1" disabled />L3urpf</td>
+	<td><input name="func_LldpMED" type="checkbox" value="1" disabled />LldpMED</td>
+	<td><input name="func_MSDP" type="checkbox" value="1" disabled />MSDP</td>
 	<td><input name="func_MultiToOneVlanTranslation" type="checkbox" value="1" />MultiToOneVlanTranslation</td>
-	<td><input name="func_QACL" type="checkbox" value="1" disabled />QACL</td>
 	</tr>
 	<tr>
 	<td><input name="func_QINQ" type="checkbox" value="1" />QINQ</td>
 	<td><input name="func_QoS" type="checkbox" value="1" disabled />QoS</td>
 	<td><input name="func_SuperVlan" type="checkbox" value="1" />Supervlan</td>
+	<td></td>
+	<td></td>
+	<td></td>
+	</tr>
+	<tr><td align="center" valign="center" colspan=6 >
+	<span style="font-size: 14px;color:#E53333;"><strong>DautoV3  +  Ixia</strong></span><br />
+	<span style="font-size: 14px;color:#E53333;">(如果连跑IXIA模块，请确保所选环境的[ IxiaIp/IxiaTP1-4 ]五个参数有正确的实际连线)</span>
+	</td></tr>
+	<tr>
+	<td><input name="func_DhcpServer" type="checkbox" value="1" disabled />DhcpServer</td>
+	<td><input name="func_ospfgr" type="checkbox" value="1" disabled />ospfgr</td>
+	<td></td>
 	<td></td>
 	<td></td>
 	<td></td>
@@ -961,6 +1219,7 @@ function checkInput_wireless(){
 			<td align="center" valign="center">售后脚本流
                     <select name="scriptversion" id="scriptversion">
 		                <option value='0'>仅售后必须选择</option>
+		                <option value='7.2'>7.2</option>
 	                   	<option value='7.0patch'>7.0patch</option>
 		                <option value='6.3'>6.3</option>
 	                </select>
@@ -1623,6 +1882,12 @@ commandlist.append(['enable','show run'])
 		<option value='0'>No</option>
 		<option value='1'>YES</option>
 		</select>
+		<select id="WirelesscontinueRun" name="WirelesscontinueRun" style="font-size: 15px;color:#E53333;{if $gui->build_is_dynamic_create eq 1}display:none"{else}"{/if}>
+		<option  style="font-size: 15px;color:#E53333;" value='0' selected='selected'><strong>初始执行</strong></option>
+		<option  style="font-size: 15px;color:#E53333;" value='1'><strong>继续执行</strong></option>
+		</select>
+		
+		
 <input type="submit" name="wirelesssubmit" id="wirelesssubmit" value="猛击开始测试" />
 <hr>
 </div>

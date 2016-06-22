@@ -186,7 +186,7 @@ $(this).siblings('.child-'+this.id).toggle();
 		</tr></thead><tbody>
 		{foreach item=jobindex from=$gui->runendjobs}
 		<tr>
-            <td>{if $jobindex.status==1}<img src='/gui/templates/dcnJobs/complete.png' ><a href="./lib/results/dcnReport.php?format=0&tplan_id={$jobindex.tplan_id}&device_id={$jobindex.device_id}&topo_type={$jobindex.topo_type}&build_id={$jobindex.build_id}" target="_black">{/if}
+            <td>{if $jobindex.status==1}<img src='/gui/templates/dcnJobs/complete.png' ><a href="./lib/results/dcnReport.php?format=0&tplan_id={$jobindex.tplan_id}&device_id={$jobindex.device_id}&stack={if $jobindex.topo_type != 0}1{else}0{/if}&build_id={$jobindex.build_id}" target="_black">{/if}
             {if $jobindex.status==0}<img src='/gui/templates/dcnJobs/fail.png' >{/if}
             {$jobindex.job_id|escape}{if $jobindex.status == 1}</a>{/if}</td>
 			<td ondblclick = "editNotes(this,'{$jobindex.job_id}','{$jobindex.job_endTime}')">{$jobindex.endwhy}</td>

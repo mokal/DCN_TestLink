@@ -266,17 +266,6 @@ $(this).siblings('.child-'+this.id).toggle();
 
 {if $gui->do_report.status_ok}
 
-{if $gui->build_id != 1 && $gui->needstack==0}
-<strong>版本结论:</strong>
-<table class="simple_tableruler" style="text-align:left; margin-left: 2px;">
-<tr><th style="width:100px;">版本测试结论:</th><td>{$gui->build_result}</td></tr>
-<tr><th style="width:100px;">测试总结与分析:</th><td>{nl2br($gui->build_result_summary)}</td></tr>
-<tr><th style="width:100px;">版本审核人:</th><td>{$gui->build_reviewer}</td></tr>
-<tr><th style="width:100px;">审核意见:</th><td>{nl2br($gui->build_review_summary)}</td></tr>
-<tr><th style="width:100px;">测试时间:</th><td>{$gui->build_timePoint['start']} 至 {$gui->build_timePoint['stop']}</td></tr>
-</table>
-{/if}
-
 <strong>结果统计:</strong>
 	<table id ='0' class="simple_tableruler" style="text-align:left; margin-left: 2px;">
 		<tr><th>Device</th>

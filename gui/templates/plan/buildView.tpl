@@ -49,16 +49,12 @@ var del_action=fRoot+'{$deleteAction}';
   <form method="post" id="buildView" name="buildView" action="{$managerURL}">
     <input type="hidden" name="do_action" id="do_action" value="">
     <input type="hidden" name="build_id" id="build_id" value="">
-     <strong>说明：</strong><br>
-      1. 测试人员填写<strong>版本结论、分析总结</strong>, 测试经理填写<strong>审核意见</strong>，请点击版本名称链接进入编辑界面填写；<br>
-      2. 若已经填写版本结论，点击版本结论链接可查阅版本详细报告；
+
 
     {* table id MUST BE item_view to use show/hide API info *}
   	<table id="item_view" class="simple_tableruler sortable">
   		<tr>
   			<th style="width:260px;">{$tlImages.toggle_api_info}{$tlImages.sort_hint}版本名称</th>
-  			<th style="width:50px;">审核人</th>
-  			<th style="width:50px;">测试结论</th>
   			<th class="{$noSortableColumnClass}" style="width:600px;">{$labels.th_description}</th>
   			<th style="width:60px;">{$labels.release_date}</th>
   			<th style="width:60px;">关闭时间</th>
@@ -76,8 +72,6 @@ var del_action=fRoot+'{$deleteAction}';
   					     {/if}    
   					  </a> 
   				</td>
-  				<td>{$build.reviewer}</td>
-  				<td>{if $build.result=='none'}未分析{/if}{if $build.result=='pass'}通过{/if}{if $build.result=='fail'}不通过{/if}{if $build.result=='verify'}检验后通过{/if}</td>
   				<td>{$build.notes}</td>
   				<td>{if $build.release_date != ''}{localize_date d=$build.release_date}{/if}</td>
   				<td>{if $build.closed_on_date != ''}<a href="./lib/results/dcnReport.php?format=0&tplan_id={$gui->tplan_id}&device_id=1&build_id={$build.id}">{localize_date d=$build.closed_on_date}</a>{/if}</td>

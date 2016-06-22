@@ -37,15 +37,15 @@ function checkTime(){
   var time_start=document.getElementById('time_start').value;
   var time_stop=document.getElementById('time_stop').value;
   if( time_start == '' || time_start == null ){
-        alert("开始时间不能为空！");
+        alert("起时间不能为空！");
         return false;
   }
   if( time_stop == '' || time_stop == null ){
-       alert("结束时间不能为空！");
+       alert("止时间不能为空！");
        return false;
   }
   if( time_stop < time_start ){
-      alert("结束时间必须在开始时间之后！");
+      alert("止时间必须在起时间之后！");
       return false;
   }else{
          return ture; 
@@ -59,8 +59,9 @@ function checkTime(){
 <div id="main">
 <div class="demo">
 <form name='form1' action="doCreateExcel.php" method="post" onsubmit="return checkTime()">
-    <p align='center'>说明：选择起止时间后，点击查询按钮，可将所查询到的结果直接导出为Excel文件。若时间跨度较大，可能因数据量较多时间较长。</p>
-    <p align='center'>开始时间:<input type="text" id="time_start" name="time_start" />  结束时间:<input type="text" id="time_stop" name="time_stop" /></p>
+    <p align='center'>说明：1.选择起止时间后，点击查询按钮，可将所查询到的结果直接导出为Excel文件。若时间跨度较大，可能因数据量较多时间较长。</p>
+    <p align='center'>2. 起止时间过滤“自动化脚本执行结束时间”在这个时间段内，与测试人员完成FAIL分析工作的时间无关。</p>
+    <p align='center'>过滤时间段从:<input type="text" id="time_start" name="time_start" /> 至:<input type="text" id="time_stop" name="time_stop" /></p>
     <p align='center'>测试计划(留空为全部):<input type="text" id="tplanname" name="tplanname" /></p>
     <p align='center'><input type='submit' value='生成查询结果' /></p>
 </form>

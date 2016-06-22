@@ -124,7 +124,7 @@ class testplan extends tlObjectWithAttachments
    *     if everything ok -> id of new testplan (node id).
    *     if problems -> 0.
    */
-  function create($name,$script_tag,$notes,$testproject_id,$is_active=1,$is_public=1)
+  function create($name,$notes,$testproject_id,$is_active=1,$is_public=1)
   {
     $debugMsg = 'Class:' . __CLASS__ . ' - Method: ' . __FUNCTION__;
 
@@ -137,20 +137,11 @@ class testplan extends tlObjectWithAttachments
     $api_key = md5(rand()) . md5(rand()); 
 
     $sql = "/* $debugMsg */ " . 
-           " INSERT INTO {$this->tables['testplans']} (id,notes,script_tag,api_key,testproject_id,active,is_public) " .
-           " VALUES ( {$tplan_id} " . ", '" . $this->db->prepare_string($notes) . "', '{$script_tag}', " .
+           " INSERT INTO {$this->tables['testplans']} (id,notes,api_key,testproject_id,active,is_public) " .
+           " VALUES ( {$tplan_id} " . ", '" . $this->db->prepare_string($notes) . "'," .
            "'" .  $this->db->prepare_string($api_key) . "'," .
            $testproject_id . "," . $active_status . "," . $public_status . ")";
     $result = $this->db->exec_query($sql);
-
-//after add new testplan, add a default build named "Dynamic Create"
-$release_date = date("Y-m-d") ;
-$sql = " INSERT INTO {$this->tables['builds']} " .
-       " (testplan_id,name,release_date,creation_ts,notes) " .
-       " VALUES ($tplan_id ,'Dynamic Create', '$release_date',{$this->db->db_now()}, '在执行测试时，如果选择此版本进行测试，系统将自动以show ver版本号创建版本后(若是售后项目，将以产品流+脚本流+show ver创建)，将测试结果写入创建的版本中。')"; 
-$this->db->exec_query($sql);
-//end 
-
     $id = 0;
     if ($result)
     {
@@ -160,113 +151,6 @@ $this->db->exec_query($sql);
     return $id;
   }
 
-  /**
-   *
-   */
-  function setTestResult($tplanid,$deviceid,$buildid,$topotype,$suite,$result,$result_summary,$reviewer,$review_summary,$result_report){
-  	$set = " SET result='" . $this->db->prepare_string($result) . "'," .
-  	       " result_summary='" . $this->db->prepare_string($result_summary) . "'," .
-  	       " reviewer='" . $this->db->prepare_string($reviewer) . "'," .
-  	       " review_summary='" . $this->db->prepare_string($review_summary) . "'," .
-  		   " result_report='" . $this->db->prepare_string($result_report) . "'" ;
-  	if( $suite == 1){
-  		$fromwhere = " FROM testplans WHERE id={$tplanid} ";
-  		$sql = " UPDATE testplans " . $set . " WHERE id={$tplanid} ";
-  	}else{
-  		$fromwhere = " FROM suite_result WHERE tplan_id={$tplanid} AND build_id={$buildid} AND device_id={$deviceid} AND topo_type={$topotype} AND suite_id={$suite} ";
-  		$sql = " UPDATE suite_result " . $set . " WHERE tplan_id={$tplanid} AND build_id={$buildid} AND device_id={$deviceid} AND topo_type={$topotype} AND suite_id={$suite} ";
-  	}
-  	$select = " SELECT result " . $fromwhere ;
-
-  	if(is_null( $this->db->get_recordset($select) ) ){
-  		return 0;
-  	}else{
-  		$this->db->exec_query($sql);
-  		return 1;
-  	}
-  }
-  
-  function getTestPlanAllResult($tplanid){
-  	$rs1 = $this->db->get_recordset(" SELECT 'device_id',id as tplan_id,result,result_report FROM testplans WHERE id={$tplanid} AND result != 'none' ");
-  	$rs2 = $this->db->get_recordset(" SELECT * FROM suite_result WHERE tplan_id={$tplanid} AND result != 'none' ");
-  	if( !is_null($rs2) ){
-  		foreach($rs2 as $key=>$item){
-  			if($item['device_id']!=1){ $rs2[$key]['devicename'] = $this->db->get_recordset(" SELECT name FROM platforms WHERE id={$item['device_id']} ")[0]['name'];}else{$rs2[$key]['devicename']='不区分设备型号';}
-  			if($item['build_id']!=1){ $rs2[$key]['buildname'] = $this->db->get_recordset(" SELECT name FROM builds WHERE id={$item['build_id']} ")[0]['name'];}else{$rs2[$key]['buildname']='不区分版本';}
-  			if($item['suite_id']!=1){ $rs2[$key]['suitename'] = $this->db->get_recordset(" SELECT name FROM nodes_hierarchy WHERE id={$item['suite_id']} ")[0]['name'];}else{$rs2[$key]['suitename']='不区分模块(测试计划结论)';}
-  			switch($item['topotype']){
-  				case 0:
-  					$rs2[$key]['topotypename'] ='独立模式不跨板卡';
-  					break;
-  				case 1:
-  					$rs2[$key]['topotypename'] ='堆叠模式不跨机架';
-  					break;
-  				case 2:
-	  				$rs2[$key]['topotypename'] ='独立模式跨板卡';
-  					break;
-  				case 3:
-  					$rs2[$key]['topotypename'] ='堆叠模式跨机架';
-  					break;
-	  			default:
-  					$rs2[$key]['topotypename'] ='不区分拓扑模式';
-  					break;
-  			}
-  		}
-  	}
-  	if( is_null($rs1) ){
-  		return $rs2;
-  	}elseif( is_null($rs2) ){
-  		return $rs1;
-  	}else{
-	  	return array_merge($rs1,$rs2);
-  	}
-  }
-  
-  /**
-   *
-   */
-  function getTestResult($tplanid,$deviceid,$buildid,$topotype,$suite){
-    $returnrs = array();
-    //$returnrs['type'] 1--tplan 2--suite
-    if( $suite == 1 ){
-    	$returnrs['type'] = 1;
-    	$fromwhere = " FROM testplans WHERE id={$tplanid} ";
-    }else{
-    	$returnrs['type'] = 2;
-    	if( $suite == 67 or $suite == 18556 ){
-    		$mysql = " SELECT E.id FROM executions as E,nodes_hierarchy as NHTSU,nodes_hierarchy as NHTC,nodes_hierarchy as NHTCV " .
-    				" WHERE NHTCV.parent_id=NHTC.id AND NHTC.parent_id=NHTSU.id AND NHTCV.id=E.tcversion_id AND NHTSU.parent_id={$suite} AND E.testplan_id={$tplanid} " ;
-    	}else{
-    	    $mysql = " SELECT E.id FROM executions as E,nodes_hierarchy as NHTSU,nodes_hierarchy as NHTC,nodes_hierarchy as NHTCV " .
-    	             " WHERE NHTCV.parent_id=NHTC.id AND NHTC.parent_id=NHTSU.id AND NHTCV.id=E.tcversion_id AND NHTSU.id={$suite} AND E.testplan_id={$tplanid} " ;
-    	}
-    	if($deviceid != 1 ){ $mysql .= "AND E.platform_id={$deviceid} " ;}
-    	if($buildid != 1 ){ $mysql .= "AND E.build_id={$buildid} " ;}
-    	if($topotype != 999 ){ $mysql .= "AND E.stack={$topotype} " ;}
-    	$rs1 = $this->db->get_recordset($mysql);
-    	$rs2 = $this->db->get_recordset( " SELECT result FROM suite_result WHERE tplan_id={$tplanid} AND device_id={$deviceid} AND build_id={$buildid} AND topo_type={$topotype} AND suite_id={$suite} " );
-    	if( !is_null($rs1) && is_null($rs2) ){
-    		$this->db->exec_query( " INSERT INTO suite_result (tplan_id,device_id,build_id,topo_type,suite_id) VALUES ({$tplanid},{$deviceid},{$buildid},{$topotype},{$suite}) " );
-    	}
-    	$fromwhere = " FROM suite_result WHERE tplan_id={$tplanid} AND device_id={$deviceid} AND build_id={$buildid} AND topo_type={$topotype} AND suite_id={$suite} ";
-    }
-    $sql = " SELECT result,result_summary,reviewer,review_summary,result_report " . $fromwhere ;
-    
-    $result = $this->db->get_recordset($sql);
-    if( is_null($result) ){
-    	$returnrs['result'] = 'none';
-    	$returnrs['result_summary'] = '###没有被执行过###'; 
-    	$returnrs['reviewer'] = $returnrs['review_summary'] = $returnrs['result_report'] = '' ;
-    }else{
-    	$returnrs['result'] = $result[0]['result'] ;
-    	$returnrs['result_report'] = $result[0]['result_report'] ;
-    	$returnrs['result_summary'] = $result[0]['result_summary'] ;
-    	$returnrs['reviewer'] = $result[0]['reviewer'] ;
-    	$returnrs['review_summary'] = $result[0]['review_summary'] ;
-    }
-    
-    return $returnrs;
-  }
 
   /**
    *
@@ -317,17 +201,6 @@ $this->db->exec_query($sql);
              "'" .  $this->db->prepare_string($api_key) . "'," .
               $item->testProjectID . "," . $active_status . "," . $public_status . ")";
     $result = $this->db->exec_query($sql);
-
-
-//after add new testplan, add a default build named "Dynamic Create"
-$release_date = date("Y-m-d") ;
-$sql = " INSERT INTO {$this->tables['builds']} " .
-       " (testplan_id,name,release_date,creation_ts,notes) " .
-       " VALUES ($id ,'Dynamic Create', '$release_date',{$this->db->db_now()}, '在执行测试时，如果选择此版本进行测试，系统将自动以show ver版本号创建版本后(若是售后项目，将以产品流+脚本流+show ver创建)，将测试结果写入创建的版本中。')"; 
-$this->db->exec_query($sql);
-//end 
-
-
     return $result ? $id : 0;
   }
 
@@ -444,7 +317,7 @@ $this->db->exec_query($sql);
    * 
    * @return integer result code (1=ok)
    */
-  function update($id,$name,$script_tag,$notes,$is_active=null,$is_public=null)
+  function update($id,$name,$notes,$is_active=null,$is_public=null)
   {
     $debugMsg = 'Class:' . __CLASS__ . ' - Method: ' . __FUNCTION__;
     $do_update = 1;
@@ -469,7 +342,7 @@ $this->db->exec_query($sql);
       $sql .= "UPDATE {$this->tables['nodes_hierarchy']} " .
               "SET name='" . $this->db->prepare_string($name) . "'" .
               "WHERE id={$id}";
-      $result = $this->db->exec_query($sql);    
+      $result = $this->db->exec_query($sql);
       
       if($result)
       {
@@ -485,7 +358,6 @@ $this->db->exec_query($sql);
         
         $sql = " UPDATE {$this->tables['testplans']} " .
                " SET notes='" . $this->db->prepare_string($notes). "' " .
-               " ,script_tag='{$script_tag}' " .
                " {$add_upd} WHERE id=" . $id;
         $result = $this->db->exec_query($sql);
       }
@@ -2001,7 +1873,7 @@ $this->db->exec_query($sql);
       $sql .= " AND is_open=" . intval($open) . " ";
     }
     
-    $orderClause = " ORDER BY creation_ts DESC";
+    $orderClause = " ORDER BY name ASC";
     if( !is_null($my['opt']['orderByDir']) )
     {
       $xx = explode(':',$my['opt']['orderByDir']);
@@ -2033,17 +1905,9 @@ $this->db->exec_query($sql);
   {
     $debugMsg = 'Class:' . __CLASS__ . ' - Method: ' . __FUNCTION__;
 
-    $sql = " /* $debugMsg */ SELECT id AS maxbuildid " .
+    $sql = " /* $debugMsg */ SELECT MAX(id) AS maxbuildid " .
       " FROM {$this->tables['builds']} " .
-      " WHERE testplan_id = {$id} AND name='Dynamic Create' " ;
-    $recordset = $this->db->get_recordset($sql);
-     // if no dynamic create build add, select max build id
-     if ( is_null($recordset) ){
-       $sql = " /* $debugMsg */ SELECT max(id) AS maxbuildid " .
-              " FROM {$this->tables['builds']} " .
-              " WHERE testplan_id = {$id} " ;
-     }
-
+      " WHERE testplan_id = {$id}";
     
     if(!is_null($active))
     {
@@ -2159,188 +2023,6 @@ $this->db->exec_query($sql);
       return $myarray;            
   }
 
-   //add by guomf for report custom
-  function get_build_result($id,$deviceid)
-  {
-    $debugMsg = 'Class' . __CLASS__ . ' - Method: ' . __FUNCTION__;
-     if( $deviceid != 1 ){
-         $sql = " /* $debugMsg */ " . 
-                " SELECT result FROM build_device_result WHERE build_id = {$id} AND device_id = {$deviceid} ";
-         $recordset = $this->db->fetchFirstRow($sql);
-         if( is_null($recordset) ){
-              $sql = " /* $debugMsg */ " . 
-                     " SELECT result FROM builds WHERE id = {$id} ";
-              $recordset = $this->db->fetchFirstRow($sql);
-          }elseif($recordset['result'] == 'none' ){
-              $sql = " /* $debugMsg */ " . 
-                     " SELECT result FROM builds WHERE id = {$id} ";
-              $recordset = $this->db->fetchFirstRow($sql);
-          }
-
-     }else{
-          $sql = " /* $debugMsg */ " . 
-                 " SELECT result FROM builds WHERE id = {$id} ";
-          $recordset = $this->db->fetchFirstRow($sql);
-     }
-
-    $rs = null;
-
-    if (!is_null($recordset))
-    {
-        switch($recordset['result']){
-              case "pass":
-                 $rs = "测试通过";
-                   break;
-              case "fail":
-                   $rs = "测试不通过";
-                   break;
-              case "verify":
-                   $rs = "检验后通过";
-                   break;
-              case 'none': 
-                   $rs = "未分析";
-                   break;
-              default:
-        }
-
-    }
-    return $rs;
-  }
-
-  function get_build_result_summary($id,$deviceid)
-  {
-     if( $deviceid != 1 ){
-         $sql = " /* $debugMsg */ " . 
-                " SELECT result,result_summary FROM build_device_result WHERE build_id = {$id} AND device_id = {$deviceid} ";
-         $recordset = $this->db->fetchFirstRow($sql);
-         if( is_null($recordset) ){
-              $sql = " /* $debugMsg */ " . 
-                     " SELECT result_summary FROM builds WHERE id = {$id} ";
-              $recordset = $this->db->fetchFirstRow($sql);
-          }elseif($recordset['result'] == 'none' ){
-              $sql = " /* $debugMsg */ " . 
-                     " SELECT result_summary FROM builds WHERE id = {$id} ";
-              $recordset = $this->db->fetchFirstRow($sql);
-          }
-     }else{
-          $sql = " /* $debugMsg */ " . 
-                 " SELECT result_summary FROM builds WHERE id = {$id} ";
-          $recordset = $this->db->fetchFirstRow($sql);
-     }
-
-    $rs = null;
-    if (!is_null($recordset))
-    {
-       $rs = $recordset['result_summary'];
-    }
-    return $rs;
-  }
-
-   //add by guomf for report custom
-  function get_build_timePoint($id)
-  {
-      $debugMsg = 'Class' . __CLASS__ . ' - Method: ' . __FUNCTION__;
-      $sql = " /* $debugMsg */ " .
-             " SELECT creation_ts,release_date,closed_on_date FROM builds WHERE id = {$id} ";
-
-      $recordset = $this->db->fetchFirstRow($sql);
-      $rs = null;
-      if (!is_null($recordset)) 
-      {
-          $rs['start'] =  $recordset['release_date'];
-          if( $recordset['release_date'] == null){
-             $rs['start'] =  $recordset['creation_ts'];
-          }
-          $rs['stop'] = $recordset['closed_on_date'];
-          if( $recordset['closed_on_date'] == null){
-             $rs['stop'] =  "未关闭";
-          }
-      }
-
-      return $rs;
-   }
-
-   //add by guomf for report custom
-  function get_build_reviewer($id,$deviceid)
-  {
-     $rs_build = " SELECT reviewer FROM builds WHERE id = {$id} ";
-
-     if( $deviceid != 1 ){
-         $sql = " /* $debugMsg */ " . 
-                " SELECT result,reviewer FROM build_device_result WHERE build_id = {$id} AND device_id = {$deviceid} ";
-         $recordset = $this->db->fetchFirstRow($sql);
-         if( is_null($recordset) ){
-              $recordset = $this->db->fetchFirstRow($rs_build);
-          }elseif($recordset['result'] == 'none' ){
-              $recordset = $this->db->fetchFirstRow($rs_build);
-          }
-     }else{ 
-          $recordset = $this->db->fetchFirstRow($rs_build); 
-     }
-
-      $rs = null;
-      if (!is_null($recordset)) 
-      {   
-      	$rs = $recordset['reviewer'] ;
-      }
-      return $rs;
-   }
-
-  function get_build_review_summary($id,$deviceid)
-  {
-     if( $deviceid != 1 ){
-         $sql = " /* $debugMsg */ " . 
-                " SELECT result,review_summary FROM build_device_result WHERE build_id = {$id} AND device_id = {$deviceid} ";
-         $recordset = $this->db->fetchFirstRow($sql);
-         if( is_null($recordset) ){
-              $sql = " /* $debugMsg */ " . 
-                     " SELECT review_summary FROM builds WHERE id = {$id} ";
-              $recordset = $this->db->fetchFirstRow($sql);
-          }elseif($recordset['result'] == 'none' ){
-              $sql = " /* $debugMsg */ " . 
-                     " SELECT review_summary FROM builds WHERE id = {$id} ";
-              $recordset = $this->db->fetchFirstRow($sql);
-          }
-     }else{
-          $sql = " /* $debugMsg */ " . 
-                 " SELECT review_summary FROM builds WHERE id = {$id} ";
-          $recordset = $this->db->fetchFirstRow($sql);
-     }
-
-      $rs = null;
-      if (!is_null($recordset)) 
-      {
-        $rs = $recordset['review_summary'];
-      }
-      return $rs;
-   }
-   
-   //add by guomf for report custom
-  function get_exec_env($build_id,$device_id)
-  {
-//      $debugMsg = 'Class' . __CLASS__ . ' - Method: ' . __FUNCTION__;
-//      $sql = " /* $debugMsg */ " .
-//             " SELECT s1ip,s1p1,s1p2,s1p3,s2ip,s2device, s1sn,s2sn,s2p1,s2p2,s2p3,ixia_ip,tp1,tp2,max(create_ts) " .
-//             " FROM affirm2_exec_record" . 
-//             " WHERE build_id = 1 AND platform_id = 1" ;
-//
-//      $recordset = $this->db->fetchFirstRow($sql);
-//      $rs = null;
-//      if (!is_null($recordset)) 
-//      {
-//        $rs = $recordset;
-//      }
-      return null;
-   }
-   
-  function get_review_users()
-  {
-    $debugMsg = 'Class:' . __CLASS__ . ' - Method: ' . __FUNCTION__;
-    $sql = "/* $debugMsg */ " . 
-           " SELECT login FROM users WHERE active=1 ";
-    $rs = $this->db->get_recordset($sql);
-    return $rs;
-  }
 
   /*
     function: get_builds
@@ -2375,8 +2057,8 @@ $this->db->exec_query($sql);
     $debugMsg = 'Class:' . __CLASS__ . ' - Method: ' . __FUNCTION__;
 
     $my['opt'] = array('fields' => 
-                       'id,testplan_id, name, result,result_summary,reviewer,review_summary,notes, active, is_open,release_date,closed_on_date,creation_ts',
-                       'orderBy' => " ORDER BY creation_ts DESC", 'getCount' => false, 'buildID' => null);
+                       'id,testplan_id, name, notes, active, is_open,release_date,closed_on_date,creation_ts',
+                       'orderBy' => " ORDER BY name ASC", 'getCount' => false, 'buildID' => null);
 
     $my['opt'] = array_merge($my['opt'],(array)$opt);
     if( $my['opt']['getCount'] )
@@ -2430,65 +2112,7 @@ $this->db->exec_query($sql);
     return $rs;
   }
 
- function get_build_devices_result($buildid){
-     $sql = " SELECT testplan_id FROM builds WHERE id = {$buildid} "; 
-     $tplan =  $this->db->fetchFirstRow($sql) ;
-    
-     $returnrs = array() ;
-     if( $tplan != null ){
-           $sql = " SELECT platform_id FROM testplan_platforms WHERE testplan_id = {$tplan['testplan_id']} "; 
-           $rs =  $this->db->get_recordset($sql) ;
-           foreach($rs as $device){
-                 $deviceid = $device['platform_id'];
-                 $sql = " SELECT device_id, result, result_summary, reviewer, review_summary FROM build_device_result WHERE build_id = {$buildid}  AND device_id = {$deviceid} "; 
-                 $rs1 = $this->db->fetchFirstRow($sql) ;
 
-                 $sql = " SELECT id FROM executions WHERE build_id = {$buildid} AND platform_id = {$deviceid} AND testplan_id = {$tplan['testplan_id']} "; 
-                 $rs2 = $this->db->get_recordset($sql) ;
-
-                 if( $rs1 == null && $rs2 != null ){
-                       $sql = " INSERT INTO  build_device_result (build_id, device_id) VALUES ( {$buildid}, {$deviceid} ) "; 
-                       $this->db->exec_query($sql) ;
-                       $returnrs[$deviceid] = array('device_id'=>$deviceid, 'result'=>'none', 'result_summary'=>'','reviewer'=>'', 'review_summary'=>'');
-                  }else{
-                       $returnrs[$deviceid] = $rs1 ;
-                  }
-           }
-     }
-     return  $returnrs;
-  }
-
-
- function get_build_devices_topo_result($buildid){
-     $sql = " SELECT testplan_id FROM builds WHERE id = {$buildid} "; 
-     $rs =  $this->db->fetchFirstRow($sql) ;
-    
-     $returnrs = array() ;
-     if( $rs != null ){
-           $sql = " SELECT platform_id FROM testplan_platforms WHERE testplan_id = {$rs['testplan_id']} "; 
-           $rs =  $this->db->get_recordset($sql) ;
-           foreach($rs as $device){
-                 $deviceid = $device['platform_id'];
-                 $sql = " SELECT stack FROM executions WHERE build_id = {$buildid}  AND platform_id = {$deviceid} GROUP BY stack "; 
-                 $topos = $this->db->get_recordset($sql) ;
-                   if( $topos != null ){
-                        foreach($topos as $topo ){
-                              $topo_id = $topo['stack']; 
-                              $sql = " SELECT topo_type, device_id, result, result_summary, reviewer, review_summary FROM build_device_topo_result WHERE build_id = {$buildid}  AND device_id = {$deviceid} AND topo_type = {$topo_id} "; 
-                              $rs = $this->db->fetchFirstRow($sql) ;
-                              if( $rs == null ){
-                                    $sql = " INSERT INTO build_device_topo_result (build_id, device_id, topo_type) VALUES ( {$buildid}, {$deviceid} , {$topo_id}) "; 
-                                    $this->db->exec_query($sql) ;
-                                    $returnrs[$deviceid][$topo_id] = array('topo_type'=>0, 'device_id'=>$deviceid, 'result'=>'none', 'result_summary'=>'','reviewer'=>'', 'review_summary'=>'');
-                              }else{
-                                    $returnrs[$deviceid][$topo_id] = $rs ;
-                              }
-                        }
-                    }
-           }
-     }
-     return  $returnrs;
-  }
   /**
    * Get a build belonging to a test plan, using build name as access key
    *
@@ -2518,67 +2142,6 @@ $this->db->exec_query($sql);
   }
 
 
-  function report_get_plans($productline_id)
-  {
-    $debugMsg = 'Class:' . __CLASS__ . ' - Method: ' . __FUNCTION__;
-    
-    $sql = " /* $debugMsg */ SELECT TP.id as '0',NH.name as '1',TP.active as '2' " .
-      " FROM nodes_hierarchy as NH,testplans as TP" .
-      " WHERE NH.node_type_id = 5 AND TP.id=NH.id AND NH.parent_id ='{$productline_id}' ";
-    
-    return $this->db->get_recordset($sql);
-  }
-
-  function report_get_suites($productline_id)
-  {
-  	$debugMsg = 'Class:' . __CLASS__ . ' - Method: ' . __FUNCTION__;
-  
-  	$sql = " /* $debugMsg */ SELECT TSU.id as '0',TSU.name as '1' " .
-  	" FROM nodes_hierarchy as TSU WHERE TSU.node_type_id = 2 ";
-  	$suites = $this->db->get_recordset($sql);
-
-  	foreach( $suites as $suite_index=>$suite ){
-  		$rs = array('id'=>$suite['0'],'node_type_id'=>2);
-  		while($rs['node_type_id'] != 1){
-  			$temp = " SELECT NHP.id,NHP.node_type_id FROM nodes_hierarchy as NH,nodes_hierarchy as NHP WHERE NH.parent_id = NHP.id AND NH.id={$rs['id']} ";
-  			$rs = $this->db->fetchFirstRow($temp);
-  		}
-  		if($rs['id'] != $productline_id ){
-  			unset($suites[$suite_index]);
-  		}
-  	}
-  	return $suites;
-  }
-  
-  function report_get_devices($productline_id)
-  {
-    $debugMsg = 'Class:' . __CLASS__ . ' - Method: ' . __FUNCTION__;
-    
-    $sql = " /* $debugMsg */ SELECT PL.id as '0',PL.name as '1',TPL.testplan_id as '2' " .
-      " FROM platforms as PL,testplan_platforms as TPL" .
-      " WHERE testproject_id ='{$productline_id}' AND PL.id=TPL.platform_id ";
-    
-    return $this->db->get_recordset($sql);
-  }
-
-  function report_get_builds()
-  {
-    $debugMsg = 'Class:' . __CLASS__ . ' - Method: ' . __FUNCTION__;
-    
-    $sql = " /* $debugMsg */ SELECT id as '0',name as '1',testplan_id as '2',active as '3' FROM builds ORDER BY creation_ts DESC";
-    
-    return $this->db->get_recordset($sql);
-  }
-
-  function dcnResult_get_suites()
-  {
-  	$sql = " SELECT NHTSU.id as '0',NHTSU.name as '1',TPTCV.testplan_id as '2',TPTCV.platform_id as '3' " .
-  	       " FROM nodes_hierarchy as NHTSU,nodes_hierarchy as NHTC,nodes_hierarchy as NHTCV, testplan_tcversions as TPTCV " .
-  	       " WHERE NHTCV.parent_id = NHTC.id AND NHTC.parent_id = NHTSU.id AND NHTCV.id = TPTCV.tcversion_id AND NHTSU.node_type_id = 2 " .
-  	       " GROUP BY NHTSU.id,TPTCV.testplan_id,TPTCV.platform_id ORDER BY NHTSU.id DESC";
-  
-    return $this->db->get_recordset($sql);
-  }
   /**
    * Get a build belonging to a test plan, using build id as access key
    *
@@ -2758,14 +2321,12 @@ $this->db->exec_query($sql);
   {
     $debugMsg = 'Class:' . __CLASS__ . ' - Method: ' . __FUNCTION__;
 
-    $release_date = date("Y-m-d") ;
-    $targetDate=trim($release_date);
-    $sql = " /* $debugMsg */ INSERT INTO {$this->tables['builds']} (testplan_id,name,notes,active,is_open,release_date) " .
+    $sql = " /* $debugMsg */ INSERT INTO {$this->tables['builds']} (testplan_id,name,notes,active,is_open) " .
            " VALUES ('". $tplan_id . "','" .
            $this->db->prepare_string($name) . "','" .
            $this->db->prepare_string($notes) . "'," .
-           "{$active},{$open}, '{$release_date}'  )";
-
+           "{$active},{$open})";
+    
     $new_build_id = 0;
     $result = $this->db->exec_query($sql);
     if ($result)
@@ -3754,41 +3315,6 @@ $this->db->exec_query($sql);
         $platforms = array( 0 => '');
       }
       return $platforms; 
-    }
-
-    //add by guomf for custom report
-    function getPlatformsHasExecuted($id,$buildid,$options=null)
-    {
-      $my['options'] = array('outputFormat' => 'array', 'outputDetails' => 'full', 'addIfNull' => false);
-      $my['options'] = array_merge($my['options'], (array)$options);
-      switch($my['options']['outputFormat'])
-      {
-        case 'map':
-            $platforms = $this->platform_mgr->getLinkedToTestplanAsMapExecuted($id,$buildid);
-            break;
-        default:
-            $opt = array('outputFormat' => $my['options']['outputFormat']);
-            $platforms = $this->platform_mgr->getLinkedToTestplanExecuted($id,$buildid,$opt);
-            break;
-      }
-      if( !is_null($platforms) )
-      {
-        switch($my['options']['outputDetails'])
-        {
-          case 'name':
-             foreach($platforms as $id => $elem){
-                $platforms[$id] = $elem['name'];
-             }
-             break;
-          default:
-              break;
-        }
-      }
-      else if( $my['options']['addIfNull'] )
-      {
-         $platforms = array( 0 => '');
-      }
-      return $platforms;
     }
 
   /**
@@ -7539,505 +7065,7 @@ function getExecutionDurationForSet($execIDSet)
     $url = "lib/plan/planEdit.php?do_action=deleteFile&tplan_id=" . intval($id) . "&file_id=" ; 
     return $url;
   }
-  function get_all_suites(){
-    $sql = "/* $debugMsg */ " .
-           " SELECT id,name FROM nodes_hierarchy " .
-           " WHERE node_type_id = 2 ";
-    return $this->db->fetchColumnsIntoMap($sql,'id','name');
-  }
-  
-  function copyFailType($oid,$nid){
-  	$sql = " SELECT	status,fail_type,notes FROM executions WHERE id={$oid} " ;
-  	$rs = $this->db->fetchFirstRow($sql);
-  	$sql = " UPDATE executions set status='{$rs['status']}',fail_type='{$rs['fail_type']}',notes='{$rs['notes']}' WHERE id={$nid} " ;
-  	return $this->db->exec_query($sql);
-  }
-  
-  function get_device_tplan_tc($tplan_id,$device_id){
-  	$sql = " SELECT TPTCV.tcversion_id,NHTS.id FROM testplan_tcversions as TPTCV,nodes_hierarchy as NHTC,nodes_hierarchy as NHTS,nodes_hierarchy as NHTCV " .
-  		   " WHERE testplan_id={$tplan_id} AND platform_id={$device_id}" .
-  	       " AND NHTCV.id=TPTCV.tcversion_id AND NHTCV.parent_id=NHTC.id AND NHTC.parent_id=NHTS.id";
-  	$rs = $this->db->fetchColumnsIntoMap($sql,'tcversion_id','id');
-  	foreach($rs as $tcvid=>$suiteid){
-  		$cases[$suiteid][]=$tcvid;
-  	}
-  	return $cases;
-  }
-  
-  function get_device_tplan_for_build_compare($tplan_id,$device_id){
-    if($device_id == 1){
-  		$device_filter = '' ;
-  	}else{
-  		$device_filter = " AND TPTCV.platform_id={$device_id} " ;
-  	}
-  	
-  	$sql = " SELECT TPTCV.tcversion_id,NHTC.name,TCV.summary FROM testplan_tcversions as TPTCV,tcversions as TCV,nodes_hierarchy as NHTC,nodes_hierarchy as NHTS,nodes_hierarchy as NHTCV " .
-  			" WHERE TPTCV.testplan_id={$tplan_id} {$device_filter}" .
-  			" AND NHTCV.id=TPTCV.tcversion_id AND NHTCV.parent_id=NHTC.id AND NHTC.parent_id=NHTS.id AND TPTCV.tcversion_id=TCV.id " .
-  			" GROUP BY tcversion_id" ;
-  	return $this->db->fetchRowsIntoMap($sql,'tcversion_id');
-  }
-  
-  function get_tpan_tc_for_topn($tplan_id){
-  	if($tplan_id == 0){ //all tplan
-  		$tplan_filter = " " ;
-  	}else{
-  		$tplan_filter = " TPTCV.testplan_id={$tplan_id} AND " ;
-  	}
-  	 
-  	$sql = " SELECT TPTCV.tcversion_id,NHTC.id as tcid,NHTC.name,TCV.summary FROM testplan_tcversions as TPTCV,tcversions as TCV,nodes_hierarchy as NHTC,nodes_hierarchy as NHTS,nodes_hierarchy as NHTCV " .
-  			" WHERE {$tplan_filter} " .
-  			" NHTCV.id=TPTCV.tcversion_id AND NHTCV.parent_id=NHTC.id AND NHTC.parent_id=NHTS.id AND TPTCV.tcversion_id=TCV.id " .
-  			" GROUP BY tcversion_id" ;
-  	return $this->db->fetchRowsIntoMap($sql,'tcversion_id');
-  }
-  
-  function get_tplan_topn($productline,$tplan_id,$suite_id=0,$data_type){ 	
-  	if($tplan_id == 0){ //all tplan
-  		$tplan_filter = " " ;
-  	}else{
-  		$tplan_filter = " testplan_id={$tplan_id} AND " ;
-  		$e_tplan_filter = " WHERE testplan_id={$tplan_id} " ;
-  	}
-  	switch($data_type){
-  		case 0://no pass topn
-  			$date_filter = " status != 'p' ";
-  			break;
-  		case 1://fail topn
-  			$date_filter = " status = 'f' ";
-  			break;
-  		case 2:// accept topn
-  			$date_filter = " status = 'c' ";
-  			break;
-  		case 3://na topn
-  			$date_filter = " status = 'x' ";
-  			break;
-  		default: //norun  topn
-  			$date_filter = " ";
-  			break;
-  	}
-    if($data_type == 0 || $data_type == 1 || $data_type == 2 || $data_type == 3){
-  	    $sql = " SELECT count(id) as filter,tcversion_id FROM executions " .
-  		    	" WHERE {$tplan_filter} {$date_filter} " .
-  			    " GROUP BY tcversion_id ORDER BY filter DESC " ;
-  	    $returnrs = $this->db->fetchRowsIntoMap($sql,'tcversion_id');
-  	    foreach( $returnrs as $tcversion_id=>$value ){
-  	    	$rs = array('id'=>$tcversion_id,'node_type_id'=>0);
-  	    	while($rs['node_type_id'] != 1){
-  	    		$temp = " SELECT NHP.id,NHP.node_type_id FROM nodes_hierarchy as NH,nodes_hierarchy as NHP WHERE NH.parent_id = NHP.id AND NH.id={$rs['id']} ";
-  	    		$rs = $this->db->fetchFirstRow($temp);
-  	    		if( $suite_id != 0 ){
-  	    			if($rs['id'] == $suite_id && $rs['node_type_id']==2 ){
-  	    				$myreturnrs[$tcversion_id] = $returnrs[$tcversion_id];
-  	    			}
-  		  		}
-  	    	}
-  	    }
-    }
-  	if($data_type == 4){
-  		$sql = " SELECT TCV.id,NHTC.name,TCV.summary,TCV.creation_ts,TCV.preconditions " .
-  			   " FROM tcversions as TCV,nodes_hierarchy as NHTC,nodes_hierarchy as NHTCV " .
-  			   	" WHERE TCV.id=NHTCV.id AND NHTCV.parent_id=NHTC.id ORDER BY TCV.creation_ts DESC " ;
-  		$allcase = $this->db->fetchRowsIntoMap($sql,'id');
-  		
-  		$sql = " SELECT count(id) as total,tcversion_id FROM executions " .
-  				" {$e_tplan_filter} GROUP BY tcversion_id " ;
-  		$runcase = $this->db->fetchRowsIntoMap($sql,'tcversion_id');
-  		
-  		function myfunction($v1,$v2)
-  		{
-  			if ($v1===$v2){	return 0;  }
-  			if ($v1>$v2){ return 1;	}
-  			else{ return -1;	}
-  		}
-  		$returnrs = array_diff_ukey($allcase,$runcase,"myfunction") ;
 
-  		foreach( $returnrs as $tcversion_id=>$value ){
-  			$rs = array('id'=>$tcversion_id,'node_type_id'=>0);    
-  		    while($rs['node_type_id'] != 1){
-  		    	$temp = " SELECT NHP.id,NHP.node_type_id FROM nodes_hierarchy as NH,nodes_hierarchy as NHP WHERE NH.parent_id = NHP.id AND NH.id={$rs['id']} ";  		    	
-  		  		$rs = $this->db->fetchFirstRow($temp);
-  		  		if( $suite_id != 0 ){
-  		  			if($rs['id'] == $suite_id && $rs['node_type_id']==2 ){
-  		  				$myreturnrs[$tcversion_id] = $returnrs[$tcversion_id];
-  		  			}
-  		  		}
-  		    }
-  		}
-  	}
-  	return $myreturnrs;
-  }
-  
-  function get_tpan_allcase_count($tplan_id){
-  	if($tplan_id == 0){ //all tplan
-  		$tplan_filter = " " ;
-  	}else{
-  		$tplan_filter = " WHERE testplan_id={$tplan_id} " ;
-  	}
-
-  	$sql = " SELECT count(id) as total,tcversion_id FROM executions " .
-  			" {$tplan_filter} GROUP BY tcversion_id " ;
-  	return $this->db->fetchRowsIntoMap($sql,'tcversion_id');
-  }
-  
-  
-  function get_build_nopass($tplan_id,$build_id,$device_id,$stack){
-  	if($device_id == 1){
-  		$device_filter = $e_device_filter = " " ;
-  	}else{
-  		$device_filter = " AND platform_id={$device_id} " ;
-  		$e_device_filter = " AND E.platform_id={$device_id} " ;
-  	}
-  	
-  	$sql = " SELECT	E.tcversion_id,E.status FROM executions as E, " .
-  	        "(SELECT MAX(execution_ts) as time FROM executions WHERE testplan_id = {$tplan_id} AND build_id = {$build_id} {$device_filter} AND stack={$stack} GROUP BY tcversion_id) as TEMP " .
-  			" WHERE E.testplan_id={$tplan_id} AND E.build_id={$build_id} {$e_device_filter} AND E.stack={$stack} AND E.status != 'p' AND E.execution_ts = TEMP.time " ;
-  	return $this->db->fetchRowsIntoMap($sql,'tcversion_id');
-  }
-  
-  function get_build_name_by_id($id){
-  	$sql = " SELECT name FROM builds WHERE id = {$id} " ;
-  	$rs = $this->db->fetchFirstRow($sql);
-  	if($rs != null){ return $rs['name'];}
-  	else{ return null;}  	
-  }
-  
-  function get_build_all($tplan_id,$build_id,$device_id,$stack){
-  	if($device_id == 1){
-  		$device_filter = $e_device_filter = " " ;
-  	}else{
-  		$device_filter = " AND platform_id={$device_id} " ;
-  		$e_device_filter = " AND E.platform_id={$device_id} " ;
-  	}
-  	
-  	$sql = " SELECT	E.id,E.tcversion_id,E.status,E.notes,E.fail_type FROM executions as E, " .
-  			"(SELECT MAX(execution_ts) as time FROM executions WHERE testplan_id = {$tplan_id} AND build_id = {$build_id} {$device_filter} AND stack={$stack} GROUP BY tcversion_id) as TEMP " .
-  			" WHERE E.testplan_id={$tplan_id} AND E.build_id={$build_id} {$e_device_filter} AND E.stack={$stack} AND E.execution_ts = TEMP.time " ;
-  	return $this->db->fetchRowsIntoMap($sql,'tcversion_id');
-  }
-  
-  function get_device_build_exec($tplan_id,$build_id,$device_id,$stack){
-  	$sql = " SELECT	TPTCV.tcversion_id,NHTC.id as tc_id,NHTS.id AS suite_id,TCV.summary,NHTC.name as tc_name " .
-           " FROM testplan_tcversions as TPTCV,tcversions as TCV,nodes_hierarchy as NHTC,nodes_hierarchy as NHTS,nodes_hierarchy as NHTCV " .
-           " WHERE testplan_id={$tplan_id} AND Platform_id={$device_id} AND NHTCV.id=TPTCV.tcversion_id AND " .
-           " NHTCV.parent_id=NHTC.id AND NHTC.parent_id=NHTS.id AND TCV.id=TPTCV.tcversion_id " ;
-    $rs = $this->db->fetchRowsIntoMap($sql,'tcversion_id');
-    foreach($rs as $k=>$v){
-  		$tplan_allcases[$v['suite_id']][$k] = $v;
-  	}
-
-  	$sql_tptc = " SELECT count(TPTCV.tcversion_id) as total,NHTS.id FROM testplan_tcversions as TPTCV,nodes_hierarchy as NHTCV,nodes_hierarchy as NHTC,nodes_hierarchy as NHTS" .
-  			    " WHERE TPTCV.testplan_id={$tplan_id} AND TPTCV.platform_id={$device_id} AND TPTCV.tcversion_id=NHTCV.id AND NHTCV.parent_id=NHTC.id AND NHTC.parent_id=NHTS.id " .
-  	            " GROUP BY NHTS.id";
-  	$tplan_tc = $this->db->fetchColumnsIntoMap($sql_tptc,'id','total');
-  	
-  	$sql = " SELECT MAX(execution_ts) as time FROM executions WHERE testplan_id = {$tplan_id} AND platform_id = {$device_id} " ;
-  	$select = "SELECT " .
-  				" NHTC.name as tc_name, " .
-  				" U.login as user," .
-  				" E.status, " .
-  				" P.name as device_name, " .
-  				" TCV.summary," .
-  				" E.notes, " .
-  				" NHTS.id as suite_id, " .
-  				" NHTC.id as tc_id," .
-  				" E.tcversion_id, " .
-  				" E.execution_ts as time, " .
-  				" E.fail_type," .
-  				" E.id," .
-  				" E.platform_id as device_id " ;
-  	$from =	  " FROM executions as E," .
-  			    " users as U," .
-  			    " tcversions as TCV," .
-  			    " platforms as P," .
-  			    " nodes_hierarchy as NHTC," .
-  			    " nodes_hierarchy as NHTS," .
-  			    " nodes_hierarchy as NHTCV " ;
-     $where = " WHERE E.testplan_id = {$tplan_id} AND " .
-                " E.platform_id = {$device_id} AND " .
-                " E.tester_id = U.id AND " .
-                " E.tcversion_id = TCV.id AND " .
-                " E.tcversion_id = NHTCV.id AND " .
-                " P.id = E.platform_id AND " .
-                " NHTCV.parent_id = NHTC.id AND ".
-                " NHTC.parent_id = NHTS.id " ;
-  	//指定了特定的版本
-	if($build_id != '1'){
-        $sql = $sql . " AND build_id={$build_id} " ;
-        $where = $where . " AND build_id={$build_id} " ;
-	}
-	//需要区分拓扑结构
-	$exe[1] = $exe[2] = $exe[3] = $exe[4] = $exe[5] = null ;
-	if($stack == 1){
-		$sql1 = $select . $from . ",(" . $sql . "AND stack=0 GROUP BY tcversion_id ) temp " . $where . "AND temp.time=E.execution_ts" ;
-		$sql2 = $select . $from . ",(" . $sql . "AND stack=1 GROUP BY tcversion_id ) temp " . $where . "AND temp.time=E.execution_ts" ;
-		$sql3 = $select . $from . ",(" . $sql . "AND stack=2 GROUP BY tcversion_id ) temp " . $where . "AND temp.time=E.execution_ts" ;
-		$sql4 = $select . $from . ",(" . $sql . "AND stack=3 GROUP BY tcversion_id ) temp " . $where . "AND temp.time=E.execution_ts" ;
-		
-		$exe[1] = $this->db->fetchRowsIntoMap($sql1,'tcversion_id');
-		$exe[2] = $this->db->fetchRowsIntoMap($sql2,'tcversion_id');
-		$exe[3] = $this->db->fetchRowsIntoMap($sql3,'tcversion_id');
-		$exe[4] = $this->db->fetchRowsIntoMap($sql4,'tcversion_id');
-	}else{
-		$sqlrs = $select . $from . ",(" . $sql . " GROUP BY tcversion_id ) temp " . $where . "AND temp.time=E.execution_ts" ;
-		$exe[5] = $this->db->fetchRowsIntoMap($sqlrs,'tcversion_id'); 
-	}
-	$output['stack'] = array('flag'=>$stack,1=>'0',2=>'0',3=>'0',4=>'0',5=>'0');
-	//stack=0的结果： 一般独立模式
-	for($i=1; $i<6; $i++){
-    	if( !is_null($exe[$i]) ){
-    		$output['stack'][$i] = '1' ;
-  	 	 	foreach($exe[$i] as $key=>$value){
-  	    		switch($value['status']){
-    				case 'p':
-    					$value['status'] = 'Pass';
-    					++$output['result'][$i][$value['suite_id']]['pass'] ; 
-    					++$output['result'][$i][$value['suite_id']]['runend'] ;
-    					break;
-    				case 'f':
-    					$value['status'] = 'Fail';
-    					++$output['result'][$i][$value['suite_id']]['fail'] ;
-    					++$output['result'][$i][$value['suite_id']]['runend'] ;
-    					break;
-   					case 'x':
-   						$value['status'] = 'NA';
-   						++$output['result'][$i][$value['suite_id']]['na'] ;
-   						++$output['result'][$i][$value['suite_id']]['runend'] ;
-   						break;
-    				case 'c':
-    					$value['status'] = 'Accept';
-    					++$output['result'][$i][$value['suite_id']]['accept'] ;
-    					++$output['result'][$i][$value['suite_id']]['runend'] ;
-    					break;
-    				case 'o':
-    					$value['status'] = '差异未处理';
-    					++$output['result'][$i][$value['suite_id']]['olddiff'] ;
-    					++$output['result'][$i][$value['suite_id']]['runend'] ;
-    					break;
-    				default:
-    					break;
-    			 }
-    			 $output['result'][$i][$value['suite_id']]['total'] = $tplan_tc[$value['suite_id']];
-    			 $output['result'][$i][$value['suite_id']]['norun'] = $tplan_tc[$value['suite_id']]- $output['result'][$i][$value['suite_id']]['runend'] ;
-    			 switch($value['fail_type']){
-    				   case 'p':
-    					$value['fail_type'] = "产品差异";
-    					break;
-    				case 'x':
-    					$value['fail_type'] = "无效测试";
-    					break;
-    				case 'v':
-    					$value['fail_type'] = "版本差异";
-    					break;
-    				case 's':
-    					$value['fail_type'] = "脚本问题";
-    					break;
-    				case 'e':
-    					$value['fail_type'] = "环境问题";
-    					break;
-    				case 'c':
-    					$value['fail_type'] = "方案问题";
-    					break;
-    				case 'f':
-    					$value['fail_type'] = "功能BUG";
-    					break;
-    				case 'a':
-    					$value['fail_type'] = "已知缺陷";
-    					break;
-   					case 'm':
-   						$value['fail_type'] = "售后未合入";
-   						break;
-    				case 'none':
-    					$value['fail_type'] = "未分析";
-    					break;
-    				default:
-    					break;
-    			}
-    			$output['result'][$i][$value['suite_id']]['cases'][$key] = $value ;
-    			$norun = array_diff_key($tplan_allcases[$value['suite_id']],$output['result'][$i][$value['suite_id']]['cases']);
-    			$output['result'][$i][$value['suite_id']]['cases'] += $norun;
-    		}
-    	}else{
-    		foreach($tplan_tc as $suiteid=>$totalcase){
-    			$output['result'][$i][$suiteid]['total'] = $output['result'][$i][$suiteid]['norun'] = $totalcase;
-    		}
-    	}
-	}
-	return $output;
-}
-
-function modify_device_build_exec_fail_type($tplan_id,$build_id,$device_id,$stack,$suite_id,$failtype){
-	$sql = " SELECT MAX(EE.execution_ts) as time FROM executions as EE WHERE EE.testplan_id = {$tplan_id} AND EE.platform_id = {$device_id} AND EE.build_id={$build_id} " ;
-	$select = " SELECT E.id,E.tcversion_id,E.job_id,E.status,E.fail_type ";
-	$from =	" FROM executions as E," .
-			" nodes_hierarchy as NHTC," .
-			" nodes_hierarchy as NHTS," .
-			" nodes_hierarchy as NHTCV " ;
-	
-	$where = " WHERE E.testplan_id = {$tplan_id} AND" .
-			 " E.build_id = {$build_id} AND" .
-			 " E.platform_id = {$device_id} AND" .
-			 " E.tcversion_id = NHTCV.id AND" .
-			 " E.status = 'f' AND" .
-			 " NHTCV.parent_id = NHTC.id AND" .
-			 " NHTC.parent_id = NHTS.id AND" .
-			 " NHTS.id = {$suite_id}" ;
-
-	//需要区分拓扑结构
-	if($stack != 0){
-		$sql .= " AND EE.stack = {$stack} " ;
-	}
-	$sql = $select . $from . ",(" . $sql . " GROUP BY EE.tcversion_id ) as TEMP " . $where . " AND TEMP.time=E.execution_ts" ;
-	$exe = $this->db->fetchRowsIntoMap($sql,'id');
-	if( $exe != null ){
-		foreach( $exe as $exec_id=>$a){
-			if( $a['status'] == 'f' && $a['fail_type'] == 'none' ){
-				$sql = " UPDATE executions set fail_type='{$failtype}' WHERE id={$exec_id} " ;
-				$this->db->exec_query($sql);
-				$sql = " UPDATE job_testcase set fail_type='{$failtype}' WHERE job_id='{$a['job_id']}' AND testcase = {$a['tcversion_id']} " ;
-				$this->db->exec_query($sql);
-			}
-		}
-	}
-}
-
-function get_exec_device_group_by_suite($tplan_id,$build_id,$device_id,$stack){
-	$sql = " SELECT tcversion_id,platform_id FROM testplan_tcversions " .
-		   " WHERE testplan_id={$tplan_id} AND platform_id={$device_id}";
-
-	$plan_tc = $this->db->get_recordset($sql);
-	$output = array();
-	$output[0] = array('total'=>count($plan_tc),'pass'=>0,'fail'=>0,'block'=>0,'accept'=>0,'na'=>0,'skip'=>0,'warn'=>0,'olddiff'=>0,'block'=>0,'norun'=>0);
-
-	foreach($plan_tc as $tc){
-		if($build_id == '1'){
-			$sql = " SELECT tester_id as user,status, notes, tcversion_id as tcv_id, execution_ts as time, fail_type , id, platform_id as device_id " .
-					" FROM executions " .
-					" WHERE stack={$stack} AND testplan_id={$tplan_id} AND tcversion_id = {$tc['tcversion_id']} AND platform_id = {$tc['platform_id']} ORDER BY execution_ts DESC " ;
-		}else{
-		    $sql = " SELECT tester_id as user,status,notes,tcversion_id as tcv_id,execution_ts as time,fail_type,id,platform_id as device_id" .
-				   " FROM executions " .
-				   " WHERE stack={$stack} AND testplan_id={$tplan_id} AND build_id={$build_id} AND tcversion_id = {$tc['tcversion_id']} AND platform_id = {$tc['platform_id']}" .
-				   " ORDER BY execution_ts DESC " ;
-		}
-		$exe = $this->db->fetchFirstRow($sql);
-
-			if(is_null($exe['tcv_id'])){
-			$exe = array('tcv_id'=>$tc['tcversion_id'],'device_id'=>$tc['platform_id'],'status'=>'NOT RUN');
-			++$output[0]['norun'];
-		}else{
-	       $sql = " SELECT login FROM users WHERE id={$exe['user']}" ;
-		   $temp = $this->db->fetchFirstRow($sql);
-		   $exe['user']= $temp['login'];
-		}
-		$sql = " SELECT summary FROM tcversions WHERE id={$exe['tcv_id']}" ;
-		$temp = $this->db->fetchFirstRow($sql);
-		$exe['summary']= $temp['summary'];
-		$sql = "SELECT name FROM platforms WHERE id={$exe['device_id']}";
-		$temp = $this->db->fetchFirstRow($sql);
-		$exe['device_name']=$temp['name'];
-		$sql = " SELECT parent_id as tc_id from nodes_hierarchy WHERE id={$exe['tcv_id']}";
-		$temp = $this->db->fetchFirstRow($sql);
-		$exe['tc_id'] = $temp['tc_id'];
-		$sql = " SELECT name as tc_name from nodes_hierarchy WHERE id ={$temp['tc_id']}";
-		$temp = $this->db->fetchFirstRow($sql);
-		$exe['tc_name'] = $temp['tc_name'];
-
-		$sql = " SELECT parent_id as suite_id from nodes_hierarchy WHERE id ={$exe['tc_id']}";
-		$temp = $this->db->fetchFirstRow($sql);
-		$suite_id = $temp['suite_id'];
-		if(!array_key_exists($suite_id,$output)){
-		    $output[$suite_id] = array('total'=>0,'pass'=>0,'fail'=>0,'block'=>0,'accept'=>0,'na'=>0,'skip'=>0,'warn'=>0,'block'=>0,'olddiff'=>0,'norun'=>0,'cases'=>array());
-		}
-		switch($exe['status']){
-			case 'p':
-				$exe['status'] = 'Pass';
-				++$output[$suite_id]['total'];
-				++$output[$suite_id]['pass'];
-				++$output[0]['pass'];
-				break;
-			case 'f':
-				$exe['status'] = 'Failed';
-				++$output[$suite_id]['total'];
-				++$output[$suite_id]['fail'];
-				++$output[0]['fail'];
-				break;
-			case 'c':
-				$exe['status'] = 'Accept';
-				++$output[$suite_id]['total'];
-				++$output[$suite_id]['accept'];
-				++$output[0]['accept'];
-				break;
-			case 'x':
-				$exe['status'] = 'N/A';
-				++$output[$suite_id]['total'];
-				++$output[$suite_id]['na'];
-				++$output[0]['na'];
-				break;
-			case 'w':
-				$exe['status'] = 'Warn';
-				++$output[$suite_id]['total'];
-				++$output[$suite_id]['warn'];
-				++$output[0]['warn'];
-				break;
-			case 'b':
-				$exe['status'] = 'Block';
-				++$output[$suite_id]['total'];
-				++$output[$suite_id]['block'];
-				++$output[0]['block'];
-				break;
-			case 's':
-				$exe['status'] = 'Skip';
-				++$output[$suite_id]['total'];
-				++$output[$suite_id]['skip'];
-				++$output[0]['skip'];
-				break;
-			case 'o':
-				$exe['status'] = '差异未处理';
-				++$output[$suite_id]['total'];
-				++$output[$suite_id]['olddiff'];
-				++$output[0]['olddiff'];
-				break;
-			default:
-				++$output[$suite_id]['total'];
-				++$output[$suite_id]['norun'];
-				break;
-			}
-			switch($exe['fail_type']){
-				case 'p':
-					$exe['fail_type'] = "产品差异";
-					break;
-				case 'x':
-					$exe['fail_type'] = "无效测试";
-					break;
-				case 'v':
-					$exe['fail_type'] = "版本差异";
-					break;
-				case 's':
-					$exe['fail_type'] = "脚本问题";
-					break;
-				case 'e':
-					$exe['fail_type'] = "环境问题";
-					break;
-				case 'c':
-					$exe['fail_type'] = "方案问题";
-					break;
-				case 'f':
-					$exe['fail_type'] = "功能BUG";
-					break;
-				case 'a':
-					$exe['fail_type'] = "已知缺陷";
-					break;
-				case 'none':
-					$exe['fail_type'] = "未分析";
-					break;
-				default:
-					break;
-			}
-			$output[$suite_id]['cases'][] = $exe;
-		}
-		return $output;
-	}
 
 } // end class testplan
 
@@ -8078,6 +7106,7 @@ class build_mgr extends tlObject
            "UPDATE {$this->tables['builds']} SET {$attr}=" . ($zeroOne ? 1 : 0) . " WHERE id=" . intval($id);
     $this->db->exec_query($sql); 
   }
+
 
   /**
    *
@@ -8138,13 +7167,11 @@ class build_mgr extends tlObject
   */
   function create($tplan_id,$name,$notes = '',$active=1,$open=1,$release_date='')
   {
-     if($release_date == ''){
-         $release_date = date("Y-m-d") ;
-     }
     $targetDate=trim($release_date);
     $sql = " INSERT INTO {$this->tables['builds']} " .
            " (testplan_id,name,notes,release_date,active,is_open,creation_ts) " .
-           " VALUES ('". $tplan_id . "','" . $this->db->prepare_string($name) . "','" .$this->db->prepare_string($notes) . "',";
+           " VALUES ('". $tplan_id . "','" . $this->db->prepare_string($name) . "','" .
+           $this->db->prepare_string($notes) . "',";
 
     if($targetDate == '')
     {
@@ -8192,7 +7219,8 @@ class build_mgr extends tlObject
     $targetDate=trim($release_date);
     $sql = " UPDATE {$this->tables['builds']} " .
            " SET name='" . $this->db->prepare_string($name) . "'," .
-           "     notes='" . $this->db->prepare_string($notes) . "'"; 
+           "     notes='" . $this->db->prepare_string($notes) . "'";
+    
     if($targetDate == '')
     {
       $sql .= ",release_date=NULL";
@@ -8220,16 +7248,15 @@ class build_mgr extends tlObject
     if($closure_date == '')
     {
       $sql .= ",closed_on_date=NULL";
-    }
-       else
+    }       
+    else
     {
       // may be will be useful validate date format
       $sql .= ",closed_on_date='" . $this->db->prepare_string($closure_date) . "'";
     }
-
+    
     $sql .= " WHERE id={$id}";
     $result = $this->db->exec_query($sql);
-
     return $result ? 1 : 0;
   }
 
@@ -8268,64 +7295,6 @@ class build_mgr extends tlObject
     return $result ? 1 : 0;
   }
 
-  function dcn_delete_build($build_id,$user_id)
-  {
-    $debugMsg = 'Class:' . __CLASS__ . ' - Method: ' . __FUNCTION__;
-    
-    $sql = " SELECT role_id FROM users WHERE id={$user_id} " ;
-    $rs = $this->db->fetchfirstrow($sql) ;
-    $role = $rs['role_id'];
-    
-  if( $role != 8 ){
-       return 0;
-    }else{
-    $safe_id = intval($build_id);
-    $where = " WHERE build_id={$safe_id}";
-
-    $sql = " DELETE FROM {$this->tables['execution_bugs']} " .
-           " WHERE execution_id IN (SELECT id FROM {$this->tables['executions']} {$where}) ";
-    $this->db->exec_query($sql);
-
-    $sql = " DELETE FROM {$this->tables['executions']} {$where}";
-    $this->db->exec_query($sql);
-
-    $sql = " DELETE FROM {$this->tables['user_assignments']} {$where}";
-    $this->db->exec_query($sql);
-
-    $sql = " DELETE FROM suite_result {$where} ";
-    $this->db->exec_query($sql);
-
-    $sql = " SELECT *  FROM running_jobs {$where} ";
-    $runjob1 = $this->db->exec_query($sql);
-
-    $sql = " SELECT *  FROM run_end_jobs {$where} ";
-    $runjob2 = $this->db->exec_query($sql);
-
-    if( !is_null($runjob1) ){
-           $sql = " DELETE FROM running_jobs {$where} ";
-           $this->db->exec_query($sql);
-           foreach( $runjob1 as $job ){
-               $sql = " DELETE FROM job_testcase  WHERE job_id = '{$job['job_id']}'  ";
-               $this->db->exec_query($sql);
-           }
-    }
-    if( !is_null($runjob2) ){
-          $sql = " DELETE FROM running_jobs {$where} ";
-          $this->db->exec_query($sql);
-          foreach( $runjob2 as $job ){
-               $sql = " DELETE FROM job_testcase  WHERE job_id = '{$job['job_id']}'  ";
-               $this->db->exec_query($sql);
-          }
-    }
-
-    // Custom fields
-    $this->cfield_mgr->remove_all_design_values_from_node($safe_id,'build');
-
-    $sql = " DELETE FROM {$this->tables['builds']} WHERE id={$safe_id}";
-    $result=$this->db->exec_query($sql);
-    return $result ? 1 : 0;
-   }
-  }
 
   /*
     function: get_by_id
@@ -8376,55 +7345,8 @@ class build_mgr extends tlObject
     return $myrow;
   }
 
- function get_build_device($id)
-  {
-    $debugMsg = 'Class:' . __CLASS__ . ' - Method: ' . __FUNCTION__;
 
-    $sql = " SELECT testplan_id  FROM builds WHERE id = {$id} ";
-    $tplanid = $this->db->fetchFirstRow($sql);
 
-    $sql = " SELECT TP.platform_id,P.name FROM testplan_platforms as TP,platforms as P WHERE TP.testplan_id = {$tplanid['testplan_id']} AND TP.platform_id = P.id ";
-    $returnrs = $this->db->fetchRowsIntoMap($sql,'platform_id');
-    foreach( $returnrs as $device){
-                  $deviceid = $device['platform_id'] ;
-                  $sql = " SELECT id FROM executions WHERE build_id={$id} AND testplan_id={$tplanid['testplan_id']} AND platform_id={$deviceid}  ";
-                  $rs = $this->db->get_recordset($sql);
-                  if( $rs == null ){   
-                        $returnrs[$deviceid]['run'] = 0 ;
-                  }else {$returnrs[$deviceid]['run'] = 1 ; }
-     }
-   return $returnrs ;
-  }
-
- function get_build_device_topo($buildid)
-  {
-    $debugMsg = 'Class:' . __CLASS__ . ' - Method: ' . __FUNCTION__;
-
-    $sql = " SELECT testplan_id FROM builds WHERE id = {$buildid} ";
-    $testplan = $this->db->fetchFirstRow($sql);
-
-    $sql = " SELECT platform_id FROM testplan_platforms WHERE testplan_id = {$testplan['testplan_id']} ";
-    $returnrs =  $this->db->fetchRowsIntoMap($sql,'platform_id');
-    foreach( $returnrs as $device ){
-              $deviceid = $device['platform_id'] ;
-              $sqla = " SELECT id FROM executions WHERE build_id = {$buildid} AND platform_id = {$deviceid} AND testplan_id ={$testplan['testplan_id']} AND stack=0 ";
-              $sqlb = " SELECT id FROM executions WHERE build_id = {$buildid} AND platform_id = {$deviceid} AND testplan_id ={$testplan['testplan_id']} AND stack=1 ";
-              $sqlc = " SELECT id FROM executions WHERE build_id = {$buildid} AND platform_id = {$deviceid} AND testplan_id ={$testplan['testplan_id']} AND stack=2 ";
-              $sqld = " SELECT id FROM executions WHERE build_id = {$buildid} AND platform_id = {$deviceid} AND testplan_id ={$testplan['testplan_id']} AND stack=3 ";
-              $rsa =  $this->db->get_recordset($sqla) ;
-              $rsb =  $this->db->get_recordset($sqlb) ;
-              $rsc =  $this->db->get_recordset($sqlc) ;
-              $rsd =  $this->db->get_recordset($sqld) ;
-              $index = 0 ;
-              if( $rsa != null ){  $returnrs[$deviceid][$index] = array(0,'0-非堆叠|盒式独立|机架独立不跨板卡');  $index++ ;   }
-              if( $rsb != null ){  $returnrs[$deviceid][$index] = array(1,'1-盒式堆叠|机架堆叠不跨机架'); $index++ ;  }
-              if( $rsc != null ){  $returnrs[$deviceid][$index] = array(2,'2-机架独立跨板卡'); $index++ ;  }
-              if( $rsd != null ){  $returnrs[$deviceid][$index] = array(3,'3-机架堆叠跨机架');$index++ ;  }
-              if( $rsa == null && $rsb == null  && $rsc == null && $rsd == null ) {  unset( $returnrs[$deviceid] ); }
-                        else{  $returnrs[$deviceid][999] = $index ;  }
-      }
-  return $returnrs ;
-  }
   /*
      function: get_by_name
               get information about a build by name
@@ -8831,5 +7753,6 @@ class milestone_mgr extends tlObject
     $rs=$this->db->get_recordset($sql);
     return $rs;
   }
-  
+
+
 } // end class milestone_mgr

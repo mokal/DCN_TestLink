@@ -171,26 +171,7 @@ function init_args($request_hash, $session_hash,$date_format)
   $args->tplan_name = isset($session_hash['testplanName']) ? $session_hash['testplanName']: '';
   $args->testprojectID = $session_hash['testprojectID'];
   $args->testprojectName = $session_hash['testprojectName'];
-  $args->userID = $session_hash['userID'];
- 
-  $args->build_result = $_POST['build_result'];
-  $args->result_summary = $_POST['result_summary'];
-  $args->build_reviewer = $_POST['build_reviewer'];
-  $args->review_summary = $_POST['review_summary'];
-
-  $args->build_device_select = $_POST['build_device_select'];
-  $args->device_build_result = $_POST['device_build_result'];
-  $args->device_result_summary = $_POST['device_result_summary'];
-  $args->device_build_reviewer = $_POST['device_build_reviewer'];
-  $args->device_review_summary = $_POST['device_review_summary'];
-
-
-  $args->build_device_topo_select = $_POST['build_device_topo_select'];
-  $args->device_topo_build_result = $_POST['device_topo_build_result'];
-  $args->device_topo_result_summary = $_POST['device_topo_result_summary'];
-  $args->device_topo_build_reviewer = $_POST['device_topo_build_reviewer'];
-  $args->device_topo_review_summary = $_POST['device_topo_review_summary'];
-   
+  $args->userID = $session_hash['userID'];   
   return $args;
 }
 
@@ -207,9 +188,6 @@ function init_args($request_hash, $session_hash,$date_format)
 function edit(&$argsObj,&$buildMgr,$dateFormat)
 {
   $binfo = $buildMgr->get_by_id($argsObj->build_id);
-
-  $argsObj->build_device = $buildMgr->get_build_device($argsObj->build_id);
-  $argsObj->build_device_topo = $buildMgr->get_build_device_topo($argsObj->build_id);
  
   $op = new stdClass();
   $op->buttonCfg = new stdClass();
@@ -220,20 +198,6 @@ function edit(&$argsObj,&$buildMgr,$dateFormat)
   $op->status_ok = 1;
 
   $argsObj->build_name = $binfo['name'];
-
-  $argsObj->build_result = $binfo['result'];
-  if($binfo['result_summary'] == null){
-      $binfo['result_summary'] = '【Fail分析】
-
-【Bug汇总】
-
-【分析总结】' ;
-   }
-  $argsObj->result_summary = $binfo['result_summary'];
-  $argsObj->build_reviewer = $binfo['reviewer'];
-  $argsObj->review_summary = $binfo['review_summary'];
-
-
   $argsObj->is_active = $binfo['active'];
   $argsObj->is_open = $binfo['is_open'];
   $argsObj->release_date = $binfo['release_date'];
@@ -274,13 +238,6 @@ function create(&$argsObj)
   $argsObj->is_active = 1;
   $argsObj->is_open = 1;
   $argsObj->closed_on_date = mktime(0, 0, 0, date("m")  , date("d"), date("Y"));
-
-   $argsObj->result_summary = '【Fail分析】
-
-【Bug汇总】
-
-【分析总结】' ;
-
   return $op;
 }
 
@@ -357,27 +314,10 @@ function renderGui(&$smartyObj,&$argsObj,&$tplanMgr,$templateCfg,$owebeditor,&$g
       $guiObj->build_id = $argsObj->build_id;
       $guiObj->build_name = $argsObj->build_name;
 
-      $guiObj->reviewers = $tplanMgr->get_review_users();
-      $guiObj->build_result = $argsObj->build_result;
-      $guiObj->result_summary = $argsObj->result_summary;
-      $guiObj->build_reviewer = $argsObj->build_reviewer;
-      $guiObj->review_summary = $argsObj->review_summary;
-      $guiObj->build_device = $argsObj->build_device;
-      $device_topo_all = json_encode($argsObj->build_device_topo);
-
       $guiObj->is_active = $argsObj->is_active;
       $guiObj->is_open = $argsObj->is_open;
       $guiObj->copy_tester_assignments = $argsObj->copy_tester_assignments;
     
-      $guiObj->build_devices = $tplanMgr->get_build_devices_result($guiObj->build_id);
-      $guiObj->device_topo = $tplanMgr->get_build_devices_topo_result($guiObj->build_id);
-      $guiObj->device_topo_all = $argsObj->build_device_topo;
-      $build_devices = json_encode($guiObj->build_devices);
-      $device_topo = json_encode($guiObj->device_topo);
-
-      $smartyObj->assign('build_devices',$build_devices);
-      $smartyObj->assign('device_topo',$device_topo);
-      $smartyObj->assign('device_topo_all',$device_topo_all);
       $smartyObj->assign('gui',$guiObj);
       $smartyObj->display($templateCfg->template_dir . $tpl);
     }
@@ -408,8 +348,8 @@ function doCreate(&$argsObj,&$buildMgr,&$tplanMgr,$dateFormat) //,&$smartyObj)
   if($check->status_ok)
   {
     $user_feedback = lang_get("cannot_add_build");
-    $buildID = $buildMgr->create($argsObj->tplan_id,$argsObj->build_name,$argsObj->build_result,$argsObj->result_summary,$argsObj->build_reviewer,$argsObj->review_summary,$argsObj->notes,$argsObj->is_active,$argsObj->is_open,$argsObj->release_date);
-
+    $buildID = $buildMgr->create($argsObj->tplan_id,$argsObj->build_name,$argsObj->notes,
+                                 $argsObj->is_active,$argsObj->is_open,$argsObj->release_date);
     if ($buildID)
     {
       $cf_map = $buildMgr->get_linked_cfields_at_design($buildID,$argsObj->testprojectID);
@@ -479,9 +419,7 @@ function doUpdate(&$argsObj,&$buildMgr,&$tplanMgr,$dateFormat)
   if($check->status_ok)
   {
     $user_feedback = lang_get("cannot_update_build");
-    if ($buildMgr->update($argsObj->build_id,$argsObj->build_name,$argsObj->notes,$argsObj->build_result,$argsObj->result_summary,$argsObj->build_reviewer,$argsObj->review_summary,
-                          $argsObj->build_device_select,$argsObj->device_build_result,$argsObj->device_result_summary,$argsObj->device_build_reviewer,$argsObj->device_review_summary,
-                          $argsObj->build_device_topo_select,$argsObj->device_topo_build_result,$argsObj->device_topo_result_summary,$argsObj->device_topo_build_reviewer,$argsObj->device_topo_review_summary,
+    if ($buildMgr->update($argsObj->build_id,$argsObj->build_name,$argsObj->notes,
                           $argsObj->is_active,$argsObj->is_open,$argsObj->release_date))
     {
       $cf_map = $buildMgr->get_linked_cfields_at_design($argsObj->build_id,$argsObj->testprojectID);

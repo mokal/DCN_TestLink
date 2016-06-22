@@ -11,6 +11,15 @@ $platform_mgr = new tlPlatform($db, $args->testproject_id);
 $gui = new stdClass();
 $job_type = $_POST['module'];
 
+$continuerun = $_POST['continueRun'];
+$topoType = $_POST['topoType'];
+
+$SkipCheckTopology = isset($_POST['SkipCheckTopology']) ? $_POST['SkipCheckTopology'] : 0;
+$SkipReload = isset($_POST['SkipReload']) ? $_POST['SkipReload'] : 0;
+$SkipInitConfig = isset($_POST['SkipInitConfig']) ? $_POST['SkipInitConfig'] : 0;
+$EnableWatchdog = isset($_POST['EnableWatchdog']) ? $_POST['EnableWatchdog'] : 0;
+$EnablePauseWhenError = isset($_POST['EnablePauseWhenError']) ? $_POST['EnablePauseWhenError'] : 0;
+
 $platform = 'all';
 if ( $job_type == 'affirm2'){
 	$suite = "确认测试2.0";
@@ -64,7 +73,7 @@ $job_is_running = $platform_mgr->getJobExist($args->productline_id, $args->tplan
 if($job_type == 'function'){
 	$total_case = 1; // get this number in later code
 }else{
-	$total_case =  $platform_mgr->getJobTotalCase($args->tplan_id, $args->device_id,$suite,$platform);
+	$total_case =  $platform_mgr->getJobTotalCase($args->tplan_id,$args->device_id,$args->build_id,$suite,$platform,$continuerun,$topoType);
 }
 if($job_is_running){
   echo "<script> {window.alert('该版本上此模块测试任务已经在执行中，请检查');location.href='/lib/dcnJobs/jobsView.php?div=now'} </script>";
@@ -96,7 +105,7 @@ else{
        $productversion = $_POST['productversion']; 
        $scriptversion= $_POST['scriptversion'];
 
-       $platform_mgr->addJob($jobid, $platform, $job_type, $total_case, $args->productline_id, $args->tplan_id, $args->device_id, $args->build_id, $args->user_name, $client_ip,$suite);
+       $platform_mgr->addJob($SkipCheckTopology,$SkipReload,$SkipInitConfig,$EnableWatchdog,$EnablePauseWhenError,$topoType,$continuerun,$jobid, $platform, $job_type, $total_case, $args->productline_id, $args->tplan_id, $args->device_id, $args->build_id, $args->user_name, $client_ip,$suite);
        $platform_mgr->addAffirm2Run($jobid, $platform, $s1ip, $s2ip, $s2device, $s1sn, $s2sn, $s1p1, $s1p2, $s1p3, $s2p1, $s2p2, $s2p3, $ixia_ip, $tp1, $tp2,$productversion,$scriptversion);
        
        echo "<script> {parent.treeframe.location.href='dcnrdc://{$jobid}';this.location.href='/lib/dcnJobs/jobsView.php?div=now';} </script>";
@@ -147,7 +156,7 @@ else{
             $suite='affirm3|affirm2';
        }
 
-      $platform_mgr->addJob($jobid, $platform, $job_type, $total_case, $args->productline_id, $args->tplan_id, $args->device_id, $args->build_id, $args->user_name, $client_ip,$suite);
+      $platform_mgr->addJob($SkipCheckTopology,$SkipReload,$SkipInitConfig,$EnableWatchdog,$EnablePauseWhenError,$topoType,$continuerun,$jobid, $platform, $job_type, $total_case, $args->productline_id, $args->tplan_id, $args->device_id, $args->build_id, $args->user_name, $client_ip,$suite);
       $platform_mgr->addAffirm3Run($jobid, $s1ip, $s4ip, $s1p1, $s1p2, $s1p3, $s1p4, $s1p5, $s1p6, $s1p7, $s1device, $s2ip, $s5ip, $s2p1, $s2p2, $s2p3, $s2p4, $s2p5, $s2p6, $s2p7, $s2p8, $s2p9, $s2p10, $s2p11, $s2p12, $s2device, $ixia_ip, $tp1, $tp2, $s6ip, $s6p1, $s6p2, $server, $client, $admin_ip, $radius);
       
       echo "<script> {parent.treeframe.location.href='dcnrdc://{$jobid}';this.location.href='/lib/dcnJobs/jobsView.php?div=now';} </script>";
@@ -255,7 +264,7 @@ else{
     		$apcip = $_POST['collegeapc'];
     		$apcport = $_POST['collegeapcp1'];
 	
-    		$platform_mgr->addJob($jobid, $platform, $job_type, $total_case, $args->productline_id, $args->tplan_id, $args->device_id, $args->build_id, $args->user_name, $client_ip,$suite);
+    		$platform_mgr->addJob($SkipCheckTopology,$SkipReload,$SkipInitConfig,$EnableWatchdog,$EnablePauseWhenError,$topoType,$continuerun,$jobid, $platform, $job_type, $total_case, $args->productline_id, $args->tplan_id, $args->device_id, $args->build_id, $args->user_name, $client_ip,$suite);
     		$platform_mgr->addCollegeRun(
     				$jobid, 
     				$ixia, $tp1, $tp2, $tp3,
@@ -308,7 +317,7 @@ else{
     		
     		$pcip = $_POST['overseapc'];
 	
-    		$platform_mgr->addJob($jobid, $platform, $job_type, $total_case, $args->productline_id, $args->tplan_id, $args->device_id, $args->build_id, $args->user_name, $client_ip,$suite);
+    		$platform_mgr->addJob($SkipCheckTopology,$SkipReload,$SkipInitConfig,$EnableWatchdog,$EnablePauseWhenError,$topoType,$continuerun,$jobid, $platform, $job_type, $total_case, $args->productline_id, $args->tplan_id, $args->device_id, $args->build_id, $args->user_name, $client_ip,$suite);
     		$platform_mgr->addOverseaRun(
     				$jobid, 
     				$ixia, $tp1, $tp2, $tp3,
@@ -388,7 +397,7 @@ else{
     		$pc1 = $_POST['financialpc1'];
     		$pc2 = $_POST['financialpc2'];
     		
-    		$platform_mgr->addJob($jobid, $platform, $job_type, $total_case, $args->productline_id, $args->tplan_id, $args->device_id, $args->build_id, $args->user_name, $client_ip,$suite);
+    		$platform_mgr->addJob($SkipCheckTopology,$SkipReload,$SkipInitConfig,$EnableWatchdog,$EnablePauseWhenError,$topoType,$continuerun,$jobid, $platform, $job_type, $total_case, $args->productline_id, $args->tplan_id, $args->device_id, $args->build_id, $args->user_name, $client_ip,$suite);
     		$platform_mgr->addFinancialRun(
     				$jobid,
     				$ixia, $tp1, $tp2,
@@ -440,7 +449,7 @@ else{
     		$interval = $_POST['performance1interval'];
     		$debug = $_POST['performance1debug'];
     		$detail = $_POST['par_detail'];
-    		$platform_mgr->addJob($jobid, $platform, $job_type, $total_case, $args->productline_id, $args->tplan_id, $args->device_id, $args->build_id, $args->user_name, $client_ip,$suite);
+    		$platform_mgr->addJob($SkipCheckTopology,$SkipReload,$SkipInitConfig,$EnableWatchdog,$EnablePauseWhenError,$topoType,$continuerun,$jobid, $platform, $job_type, $total_case, $args->productline_id, $args->tplan_id, $args->device_id, $args->build_id, $args->user_name, $client_ip,$suite);
     		$platform_mgr->addPerformanceRun(
     				$jobid,
     				$ixiaip, $ixiaport,null,
@@ -460,7 +469,7 @@ else{
     		$interval = $_POST['performance2interval'];
     		$debug = $_POST['performance2debug'];
     		$detail = $_POST['par_detail'];
-    		$platform_mgr->addJob($jobid, $platform, $job_type, $total_case, $args->productline_id, $args->tplan_id, $args->device_id, $args->build_id, $args->user_name, $client_ip,$suite);
+    		$platform_mgr->addJob($SkipCheckTopology,$SkipReload,$SkipInitConfig,$EnableWatchdog,$EnablePauseWhenError,$topoType,$continuerun,$jobid, $platform, $job_type, $total_case, $args->productline_id, $args->tplan_id, $args->device_id, $args->build_id, $args->user_name, $client_ip,$suite);
     		$platform_mgr->addPerformanceRun(
     				$jobid,
     				$ixiaip, $ixiaport,$ixiaport_num,
@@ -474,7 +483,7 @@ else{
     	$total_case = 0;
     	foreach( $_POST as $pkey => $pvalue ){
     		if( preg_match("/^func_([a-z|A-Z|0-9|_|-].*)/i" , $pkey , $myitemp) ){
-    			$case =  $platform_mgr->getJobTotalCase($args->tplan_id, $args->device_id,$myitemp[1]);
+    			$case =  $platform_mgr->getJobTotalCase($args->tplan_id,$args->device_id,$args->build_id,$myitemp[1],'all',$continuerun,$topoType);
     			$total_case += $case;
     			if( $case != 0 ){
     				if($mindex == 1){ 
@@ -490,20 +499,20 @@ else{
     	if($total_case == 0){
     		echo "<script> {window.alert('该版本上所选模块没有制定覆盖策略(模块测试例为0)，请检查');location.href='/lib/dcnJobs/jobsView.php?div=now'} </script>";
     	}else{
-    		$platform_mgr->addJob($jobid, $platform, $job_type, $total_case, $args->productline_id, $args->tplan_id, $args->device_id, $args->build_id, $args->user_name, $client_ip,$suite);
+    		$platform_mgr->addJob($SkipCheckTopology,$SkipReload,$SkipInitConfig,$EnableWatchdog,$EnablePauseWhenError,$topoType,$continuerun,$jobid, $platform, $job_type, $total_case, $args->productline_id, $args->tplan_id, $args->device_id, $args->build_id, $args->user_name, $client_ip,$suite);
     		$platform_mgr->addFunctionRun($jobid,$_POST['functionEnvSel'],$module,$_POST['function_env_detail'],$_POST['function_env_detail_adv']);
     		echo "<script> {parent.treeframe.location.href='dcnrdc://{$jobid}';this.location.href='/lib/dcnJobs/jobsView.php?div=now';} </script>";
     	}
     }elseif( $job_type == 'cmdauto' ){
        $s1ip = $_POST['cmdautos1ip'];
-       $platform_mgr->addJob($jobid, $platform, $job_type, $total_case, $args->productline_id, $args->tplan_id, $args->device_id, $args->build_id, $args->user_name, $client_ip,$suite);
+       $platform_mgr->addJob($SkipCheckTopology,$SkipReload,$SkipInitConfig,$EnableWatchdog,$EnablePauseWhenError,$topoType,$continuerun,$jobid, $platform, $job_type, $total_case, $args->productline_id, $args->tplan_id, $args->device_id, $args->build_id, $args->user_name, $client_ip,$suite);
        $platform_mgr->addCmdAutoRun($jobid, $s1ip);
        
        echo "<script> {parent.treeframe.location.href='dcnrdc://{$jobid}';this.location.href='/lib/dcnJobs/jobsView.php?div=now';} </script>";
     }elseif( $job_type == 'memorytest' ){
        $s1ip = $_POST['memorytests1ip'];
        $details = $_POST['memorytestdetails'];
-       $platform_mgr->addJob($jobid, $platform, $job_type, $total_case, $args->productline_id, $args->tplan_id, $args->device_id, $args->build_id, $args->user_name, $client_ip,$suite);
+       $platform_mgr->addJob($SkipCheckTopology,$SkipReload,$SkipInitConfig,$EnableWatchdog,$EnablePauseWhenError,$topoType,$continuerun,$jobid, $platform, $job_type, $total_case, $args->productline_id, $args->tplan_id, $args->device_id, $args->build_id, $args->user_name, $client_ip,$suite);
        $platform_mgr->addMemoryTesttRun($jobid, $s1ip, addslashes($details));
        
        echo "<script> {parent.treeframe.location.href='dcnrdc://{$jobid}';this.location.href='/lib/dcnJobs/jobsView.php?div=now';} </script>";

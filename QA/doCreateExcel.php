@@ -62,39 +62,41 @@ $objActSheet->getStyle('T2')->getFont()->setBold(TRUE);
 $objActSheet->getStyle('U2')->getFont()->setBold(TRUE);
 $objActSheet->getStyle('V2')->getFont()->setBold(TRUE);
 $objActSheet->getStyle('W2')->getFont()->setBold(TRUE);
+$objActSheet->getStyle('X2')->getFont()->setBold(TRUE);
 
 $objActSheet->setCellValue('A2', 'JobID');
 $objActSheet->setCellValue('B2', 'Notes');
 $objActSheet->setCellValue('C2', '测试计划');  
 $objActSheet->setCellValue('D2', '测试设备');
-$objActSheet->setCellValue('E2', '测试版本');  
-$objActSheet->setCellValue('F2', '模块');
-$objActSheet->setCellValue('G2', '拓扑类型');  
-$objActSheet->setCellValue('H2', '测试人员');
-$objActSheet->setCellValue('I2', '测试时间');
-$objActSheet->setCellValue('J2', '总用例');
-$objActSheet->setCellValue('K2', '已执行');
-$objActSheet->setCellValue('L2', 'Fail');
-$objActSheet->setCellValue('M2', '失败率%');
-$objActSheet->setCellValue('N2', '交换机Bug');
-$objActSheet->setCellValue('O2', '已知缺陷');
-$objActSheet->setCellValue('P2', '脚本问题');
-$objActSheet->setCellValue('Q2', '产品差异');
-$objActSheet->setCellValue('R2', '版本差异');
-$objActSheet->setCellValue('S2', '方案问题');
-$objActSheet->setCellValue('T2', '环境问题');
-$objActSheet->setCellValue('U2', '无效测试');
-$objActSheet->setCellValue('V2', '未分析');
-$objActSheet->setCellValue('W2', '未分析率');
+$objActSheet->setCellValue('E2', '测试版本');
+$objActSheet->setCellValue('F2', '版本结论');
+$objActSheet->setCellValue('G2', '模块');
+$objActSheet->setCellValue('H2', '拓扑类型');  
+$objActSheet->setCellValue('I2', '测试人员');
+$objActSheet->setCellValue('J2', '测试时间');
+$objActSheet->setCellValue('K2', '总用例');
+$objActSheet->setCellValue('L2', '已执行');
+$objActSheet->setCellValue('M2', 'Fail');
+$objActSheet->setCellValue('N2', '失败率%');
+$objActSheet->setCellValue('O2', '交换机Bug');
+$objActSheet->setCellValue('P2', '已知缺陷');
+$objActSheet->setCellValue('Q2', '脚本问题');
+$objActSheet->setCellValue('R2', '产品差异');
+$objActSheet->setCellValue('S2', '版本差异');
+$objActSheet->setCellValue('T2', '方案问题');
+$objActSheet->setCellValue('U2', '环境问题');
+$objActSheet->setCellValue('V2', '无效测试');
+$objActSheet->setCellValue('W2', '未分析');
+$objActSheet->setCellValue('X2', '未分析率');
 
 $objActSheet->getColumnDimension('A')->setWidth(22);
 $objActSheet->getColumnDimension('B')->setWidth(40);
 $objActSheet->getColumnDimension('C')->setWidth(40);
 $objActSheet->getColumnDimension('D')->setWidth(40);
 $objActSheet->getColumnDimension('E')->setWidth(35);
-$objActSheet->getColumnDimension('F')->setWidth(15);
-$objActSheet->getColumnDimension('H')->setWidth(20);
+$objActSheet->getColumnDimension('G')->setWidth(15);
 $objActSheet->getColumnDimension('I')->setWidth(20);
+$objActSheet->getColumnDimension('J')->setWidth(20);
 
 $caseindex = 3;
 foreach($alldata as $resultdetail){
@@ -107,37 +109,38 @@ foreach($alldata as $resultdetail){
 	$objActSheet->setCellValue('C'.$caseindex, $resultdetail['testplan']);
 	$objActSheet->setCellValue('D'.$caseindex, $resultdetail['device']);
 	$objActSheet->setCellValue('E'.$caseindex, $resultdetail['build']);
-	$objActSheet->setCellValue('F'.$caseindex, $resultdetail['job_type']);
-	$objActSheet->setCellValue('G'.$caseindex, $resultdetail['topo_type']);  
-	$objActSheet->setCellValue('H'.$caseindex, $resultdetail['user']);
-	$objActSheet->setCellValue('I'.$caseindex, $resultdetail['job_startTime']);
-	$objActSheet->setCellValue('J'.$caseindex, $resultdetail['total']);
-	$objActSheet->setCellValue('K'.$caseindex, $resultdetail['runend']);
-	$objActSheet->setCellValue('L'.$caseindex, $resultdetail['fail']);
-	$objActSheet->setCellValue('M'.$caseindex, $resultdetail['fail']*100/($resultdetail['runend']+0.01));  #x*100/(y+0.01)
-	$objActSheet->setCellValue('N'.$caseindex, $resultdetail['switch']);
-	$objActSheet->setCellValue('O'.$caseindex, $resultdetail['accept']);
-	$objActSheet->setCellValue('P'.$caseindex, $resultdetail['script']);
-	$objActSheet->setCellValue('Q'.$caseindex, $resultdetail['productdiff']);
-	$objActSheet->setCellValue('R'.$caseindex, $resultdetail['versiondiff']);
-	$objActSheet->setCellValue('S'.$caseindex, $resultdetail['checklist']);
-	$objActSheet->setCellValue('T'.$caseindex, $resultdetail['environment']);
-	$objActSheet->setCellValue('U'.$caseindex, $resultdetail['na']);
-	$objActSheet->setCellValue('V'.$caseindex, $resultdetail['none']);
-	$objActSheet->setCellValue('W'.$caseindex, $resultdetail['none']*100/($resultdetail['fail']+0.01));
+	$objActSheet->setCellValue('F'.$caseindex, $resultdetail['buildresult']);
+	$objActSheet->setCellValue('G'.$caseindex, $resultdetail['job_type']);
+	$objActSheet->setCellValue('H'.$caseindex, $resultdetail['topo_type']);  
+	$objActSheet->setCellValue('I'.$caseindex, $resultdetail['user']);
+	$objActSheet->setCellValue('J'.$caseindex, $resultdetail['job_startTime']);
+	$objActSheet->setCellValue('K'.$caseindex, $resultdetail['total']);
+	$objActSheet->setCellValue('L'.$caseindex, $resultdetail['runend']);
+	$objActSheet->setCellValue('M'.$caseindex, $resultdetail['fail']);
+	$objActSheet->setCellValue('N'.$caseindex, $resultdetail['fail']*100/($resultdetail['runend']+0.01));  #x*100/(y+0.01)
+	$objActSheet->setCellValue('O'.$caseindex, $resultdetail['switch']);
+	$objActSheet->setCellValue('P'.$caseindex, $resultdetail['accept']);
+	$objActSheet->setCellValue('Q'.$caseindex, $resultdetail['script']);
+	$objActSheet->setCellValue('R'.$caseindex, $resultdetail['productdiff']);
+	$objActSheet->setCellValue('S'.$caseindex, $resultdetail['versiondiff']);
+	$objActSheet->setCellValue('T'.$caseindex, $resultdetail['checklist']);
+	$objActSheet->setCellValue('U'.$caseindex, $resultdetail['environment']);
+	$objActSheet->setCellValue('V'.$caseindex, $resultdetail['na']);
+	$objActSheet->setCellValue('W'.$caseindex, $resultdetail['none']);
+	$objActSheet->setCellValue('X'.$caseindex, $resultdetail['none']*100/($resultdetail['fail']+0.01));
     ++$caseindex;
 }
 
 //设置居中
-$objActSheet->getStyle('A2:W'.$caseindex)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+$objActSheet->getStyle('A2:X'.$caseindex)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 
 //画出sheet的边框线条
 $styleArray = array('borders'=>array('allborders'=>array('style'=>PHPExcel_Style_Border::BORDER_THIN)));
 $caseindex =  $caseindex - 1;
-$objActSheet->getStyle('A1:W'.$caseindex)->applyFromArray($styleArray);
+$objActSheet->getStyle('A1:X'.$caseindex)->applyFromArray($styleArray);
 
 //设置自动筛选
-$objActSheet->setAutoFilter('A2:W2');
+$objActSheet->setAutoFilter('A2:X2');
 
 // Redirect output to a client’s web browser (Excel5)
 header('Content-Type: application/vnd.ms-excel;charset=utf-8');
@@ -169,7 +172,7 @@ function getMonthReport($tproject_id,$start,$end,$tplanname)
 	}
 	
 	mysqli_query($db, "SET NAMES 'utf8'");	
-	$sql = "SELECT J.*, U.login as user, D.name as device,BU.name as build,TP.name as testplan " .
+	$sql = "SELECT J.*, U.login as user, D.name as device,BU.name as build,TP.name as testplan,BU.result as buildresult " .
 			" FROM run_end_jobs as J, users as U, platforms as D , nodes_hierarchy as TP, builds as BU" .
 			" WHERE J.job_endTime >= '{$start}' AND J.job_endTime <= '{$end}' AND U.id = J.user_id AND J.device_id=D.id {$filter} AND BU.id=J.build_id AND TP.id=J.tplan_id ORDER BY J.job_startTime DESC";
 	$result = mysqli_query($db,$sql);
@@ -187,6 +190,7 @@ function getMonthReport($tproject_id,$start,$end,$tplanname)
 		$returnrs['total']['topo_type'] = '' ;
 		$returnrs['total']['testplan'] = '测试执行汇总' ;
 		$returnrs['total']['build'] = '' ;
+		$returnrs['total']['buildresult'] = '' ;
 		$returnrs['total']['total']=$returnrs['total']['runend']=$returnrs['total']['fail']= $returnrs['total']['switch'] =$returnrs['total']['accept']=$returnrs['total']['script']=$returnrs['total']['productdiff']=$returnrs['total']['versiondiff']=$returnrs['total']['checklist']=$returnrs['total']['environment']=$returnrs['total']['na']=0;
 		for( $i = 0; $i < $num; $i++ ){
 			$job = mysqli_fetch_assoc($result);
@@ -209,6 +213,14 @@ function getMonthReport($tproject_id,$start,$end,$tplanname)
 			$temp['tplan_id'] = $job['tplan_id'] ;
 			$temp['build_id'] = $job['build_id'] ;
 			$temp['total'] = $job['total_case'] ;
+			$temp['buildresult'] = '';
+			if($job['buildresult'] == 'pass'){
+				$temp['buildresult'] = '通过';
+			}elseif($job['buildresult'] == 'fail'){
+				$temp['buildresult'] = '不通过';
+			}elseif($job['buildresult'] == 'verify'){
+				$temp['buildresult'] = '验证后通过';
+			}
 			$temp['fail'] = $job['fail_case'] + $job['na_case'] + $job['accept_case'] + $job['block_case'] + $job['warn_case'] + $job['skip_case'] ;
 			$temp['runend'] = $job['runend_case'] ;
 			$returnrs['total']['total'] += $temp['total'] ;

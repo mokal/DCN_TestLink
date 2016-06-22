@@ -20,12 +20,6 @@ Purpose: smarty template - show Test Results and Metrics
          arg_tproject_name=$gui->tproject_name arg_tplan_name=$gui->tplan_name arg_build_name=$gui->build_by_id['name']}	
 
 {if $gui->do_report.status_ok}
-
-   <hr>
-   {* ----summary------- *}
-    <strong>测试结论:</strong>{$gui->testresult}
-     <br><strong>分析与总结:</strong><br>
-     {nl2br($gui->resultsummary)}
    <hr>
   {* ----- result items----------- *}
    <strong>结果统计:</strong><inpput type='button'><a href='/lib/results/dcnReportDownloadExcel.php?format={$selectedReportType}&amp;tplan_id={$gui->tplan_id}' target='_black'>点击下载Excel报告</a></input>

@@ -12,6 +12,7 @@ $gui = new stdClass();
 $gui->runningjobs = $platform_mgr->getAllRunningjobs();
 $gui->user = $args->user;
 $gui->device_name  = $platform_mgr->getDeviceName($args->productline_id, $args->device_id);
+$gui->build_is_dynamic_create  = $platform_mgr->isBuildNameIsDynamicCreate($args->build_id);
 $gui->productline_id = $args->productline_id;
 $gui->device_not_box = preg_match("/6800|6804|6808|7600|7604|7608|9800|9808|16809/",$gui->device_name);
 

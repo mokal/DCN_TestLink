@@ -76,7 +76,7 @@ class tlPlatform extends tlObjectWithDB
       {
         $op['status'] = tl::OK;
         $op['id'] = $this->db->insert_id($this->tables['platforms']);
-      } 
+      }
     }
     return $op;
   }
@@ -199,7 +199,7 @@ public function createIssue($testcase, $step, $product, $script, $comment)
   		$sql =  " SELECT job_id,topo_type,topo_type as job_type,module,productline_id as productLine , tplan_id as testPlan, build_id as testBuild, device_id as testDevice, user_id as user" .
   				" FROM run_cloud_jobs WHERE job_id = '{$jobid}'" ;
   	}else{
-    	$sql =  " SELECT job_id, job_type, productline_id as productLine , tplan_id as testPlan, build_id as testBuild, device_id as testDevice, user_id as user" .
+    	$sql =  " SELECT SkipCheckTopology,SkipReload,SkipInitConfig,EnableWatchdog,EnablePauseWhenError,job_id,continue_mode, topo_type,job_type, productline_id as productLine , tplan_id as testPlan, build_id as testBuild, device_id as testDevice, user_id as user" .
         	    " FROM running_jobs WHERE job_id = '{$jobid}'" ;
   	}
     $rs = $this->db->fetchFirstRow($sql);
@@ -393,222 +393,121 @@ public function createIssue($testcase, $step, $product, $script, $comment)
 
   public function getJobCases($jobid)
   {
+  	$continue_mode = 0;
   	$docker_not_support='lldp_5.2.2.6.tcl-lldp_5.2.3.7.tcl-lldp5.2.3.11.tcl-lldp_5.2.5.3.tcl-lldp_6.2.tcl-lldp_6.3.tcl-lldp_6.4.tcl-lldp_6.5.tcl-lldp_6.6.tcl-lldp_6.7.tcl-lldp_6.8.tcl-lldp_6.9.tcl-lldp_8.1.tcl-lldp_8.2.tcl';
   	$docker_not_support.='VRRP_5.2.7.2.tcl-VRRP_6.1.1.tcl-VRRP_6.3.tcl-VRRP_6.4.tcl-VRRP_6.5.tcl-VRRP_6.6.tcl-VRRP_6.7.tcl-VRRP_6.8.tcl-VRRP_7.1.tcl-VRRP_7.2.tcl-VRRP_7.3.tcl';
   	$docker_not_support.='Ipv4Ipv6Host_5.2.4.tcl-Ipv4Ipv6Host_5.2.5.tcl-Ipv4Ipv6Host_5.2.7.tcl-Ipv4Ipv6Host_5.2.10.tcl-Ipv4Ipv6Host_5.2.13.tcl-Ipv4Ipv6Host_5.2.14.3.tcl-Ipv4Ipv6Host_5.2.15.tcl-Ipv4Ipv6Host_5.2.8.3.tcl';
   	if( preg_match("/^cloud(.*?)/i" , $jobid , $tempa) ){
   		$sql = " SELECT tplan_id, device_id, module as job_type,env_id FROM run_cloud_jobs WHERE job_id = '{$jobid}'" ;
+  		$exec = $this->db->fetchFirstRow($sql);
   	}else{
-        $sql = " SELECT tplan_id, device_id, job_type FROM running_jobs WHERE job_id = '{$jobid}'" ;
+        $sql = " SELECT continue_mode, topo_type, tplan_id, device_id, build_id, job_type FROM running_jobs WHERE job_id = '{$jobid}'" ;
+        $exec = $this->db->fetchFirstRow($sql);
+        $continue_mode = $exec['continue_mode'];
   	}
-  	$exec = $this->db->fetchFirstRow($sql);
-  	
   	$platform = 'all';
   	if($exec['job_type'] == 'affirm2'){
   		$sql = " SELECT platform FROM affirm2_exec_record WHERE job_id = '{$jobid}'" ;
   		$atemp = $this->db->fetchFirstRow($sql);
   		$platform = $atemp['platform'];
   	}
-  	
+  	$where1 = "";
   	if($platform == 'moni'){
-  		$sql =  " SELECT TPTCV.id as tptcid,TPTCV.skip,TPTCV.tcversion_id,TCV.preconditions " .
-  		 		" FROM testplan_tcversions as TPTCV, tcversions as TCV " .
-  		 		" WHERE TPTCV.tcversion_id = TCV.id AND TPTCV.testplan_id ={$exec['tplan_id']} AND TPTCV.platform_id = {$exec['device_id']} AND TPTCV.active=1 AND TCV.preconditions LIKE '%.tcl' ";
+  		$where1 = " AND TCV.preconditions LIKE '%.tcl'";
   	}elseif($platform == 'dauto'){
-  		$sql =  " SELECT TPTCV.id as tptcid,TPTCV.skip,TPTCV.tcversion_id,TCV.preconditions " .
-  		 		" FROM testplan_tcversions as TPTCV, tcversions as TCV " .
-  		 		" WHERE TPTCV.tcversion_id = TCV.id AND TPTCV.testplan_id ={$exec['tplan_id']} AND TPTCV.platform_id = {$exec['device_id']} AND TPTCV.active=1 AND TCV.preconditions LIKE '%.py' ";
-  	}else{
-  		$sql =  " SELECT TPTCV.id as tptcid,TPTCV.skip,TPTCV.tcversion_id,TCV.preconditions " .
-  				" FROM testplan_tcversions as TPTCV, tcversions as TCV " .
-  				" WHERE TPTCV.tcversion_id = TCV.id AND TPTCV.testplan_id ={$exec['tplan_id']} AND TPTCV.platform_id = {$exec['device_id']} AND TPTCV.active=1 ";
+  		$where1 = " AND TCV.preconditions LIKE '%.py'";
   	}
-  	$cases = $this->db->get_recordset($sql);
-   
-    $returnrs = array();
-    foreach($cases as $testcase){
-         $sql =  " SELECT parent_id FROM nodes_hierarchy WHERE id= {$testcase['tcversion_id']} " ;
-         $rs = $this->db->fetchFirstRow($sql);
-         $temp['testcase_id'] = $rs['parent_id'];
-       
-         $sql =  " SELECT parent_id,name FROM nodes_hierarchy WHERE id= {$temp['testcase_id']} " ;
-         $rs = $this->db->fetchFirstRow($sql);
-         $temp['name'] = $rs['name'];
-
-         $sql =  " SELECT name FROM nodes_hierarchy WHERE id= {$rs['parent_id']} " ;
-         $rs = $this->db->fetchFirstRow($sql);
-
-         switch($exec['job_type']){
-             case 'affirm2':
-                 if($rs['name'] == '确认测试2.0'){
-                    	if($testcase['skip'] != 1){
-                            $temp['suite'] = $rs['name'];
-                            $temp['script'] = $testcase['preconditions'];
-                           	array_push($returnrs, $temp);
-                       	 }else{
-                       	   	$sql =  " UPDATE testplan_tcversions SET skip=0 WHERE id={$testcase['tptcid']} " ;
-                       	   	$this->db->exec_query($sql);
-                       	 }
-                 };
-                 break;
-
-             case 'affirm3':
-                 if($rs['name'] == '确认测试3.0' ){
-                     if($testcase['skip'] != 1){
-                         $temp['suite'] = $rs['name'];
-             		     $temp['script'] = $testcase['preconditions'];
-                    	 array_push($returnrs, $temp);
-                     }else{
-                         $sql =  " UPDATE testplan_tcversions SET skip=0 WHERE id={$testcase['tptcid']} " ;
-                       	 $this->db->exec_query($sql);
-                     }
-                 };
-                 break;
-
-             case 'affirm3|affirm2':
-                 if( ($rs['name'] == '确认测试3.0') or ($rs['name'] == '确认测试2.0') ){
-                   	 if($testcase['skip'] != 1){
-                         $temp['suite'] = $rs['name'];
-                         $temp['script'] = $testcase['preconditions'];
-                         array_push($returnrs, $temp);
-                   	 }else{
-                     	 $sql =  " UPDATE testplan_tcversions SET skip=0 WHERE id={$testcase['tptcid']} " ;
-                       	 $this->db->exec_query($sql);
-                     }
-                 };
-                 break;                       
-             case 'waffirm':
-                 if( $rs['name'] == 'waffirm' ){
-                     if($testcase['skip'] != 1){
-                         $temp['suite'] = $rs['name'];
-                       	 $temp['script'] = $testcase['preconditions'];
-                       	 array_push($returnrs, $temp);
-                      }else{
-                          $sql =  " UPDATE testplan_tcversions SET skip=0 WHERE id={$testcase['tptcid']} " ;
-                          $this->db->exec_query($sql);
-                      }
-                  };
-                  break;
-                  
-              case 'waffirm_X86':
-                  if( $rs['name'] == 'waffirm_X86' ){
-                      if($testcase['skip'] != 1){
-                  	      $temp['suite'] = $rs['name'];
-                  		  $temp['script'] = $testcase['preconditions'];
-                  		  array_push($returnrs, $temp);
-                  	   }else{
-                  		  $sql =  " UPDATE testplan_tcversions SET skip=0 WHERE id={$testcase['tptcid']} " ;
-                  		  $this->db->exec_query($sql);
-                  	   }
-                    };
-                  	break;
-                  	
-               case 'IGMPSnp性能':
-                 	if( $rs['name'] == 'IgmpSnooping处理性能' ){
-                 		if($testcase['skip'] != 1){
-                 			$temp['suite'] = $rs['name'];
-                 			$temp['script'] = $testcase['preconditions'];
-                 			array_push($returnrs, $temp);
-                 		}else{
-                 			$sql =  " UPDATE testplan_tcversions SET skip=0 WHERE id={$testcase['tptcid']} " ;
-                 			$this->db->exec_query($sql);
-                 		}
-                 	};
-                 	break;
-                  		 		
-                  case 'IGMPSnp时延':
-                  	if( $rs['name'] == 'IgmpSnooping时延' ){
-                  		if($testcase['skip'] != 1){
-                  			$temp['suite'] = $rs['name'];
-                  			$temp['script'] = $testcase['preconditions'];
-                  			array_push($returnrs, $temp);
-                  		}else{
-                  			$sql =  " UPDATE testplan_tcversions SET skip=0 WHERE id={$testcase['tptcid']} " ;
-                  			$this->db->exec_query($sql);
-                  		}
-                  	};
-                  	break;
-                  						
-                  case '协议收包缓冲':
-                  	if( $rs['name'] == '协议收包缓冲区长度' ){
-                  		if($testcase['skip'] != 1){
-                  			$temp['suite'] = $rs['name'];
-                  			$temp['script'] = $testcase['preconditions'];
-                  			array_push($returnrs, $temp);
-                  		}else{
-                  			$sql =  " UPDATE testplan_tcversions SET skip=0 WHERE id={$testcase['tptcid']} " ;
-                  			$this->db->exec_query($sql);
-                  		}
-                  	};
-                  	break;			
-                  				
-                  case '板间协议处理':
-                  	if( $rs['name'] == '板间协议处理能力' ){
-                  		if($testcase['skip'] != 1){
-                  			$temp['suite'] = $rs['name'];
-                  			$temp['script'] = $testcase['preconditions'];
-                  			array_push($returnrs, $temp);
-                  		}else{
-                  			$sql =  " UPDATE testplan_tcversions SET skip=0 WHERE id={$testcase['tptcid']} " ;
-                  			$this->db->exec_query($sql);
-                  		}
-                  	};
-                  	break;
-                  	 	
-                  case 'function':
-                  	$sql =  " SELECT modules FROM function_exec_record WHERE job_id = '{$jobid}'" ;
-                  	$modules = $this->db->fetchFirstRow($sql);
-                  	if( preg_match("/" . $rs['name'] ."/i",$modules['modules']) ){
-                  		if($testcase['skip'] != 1){
-                  			$temp['suite'] = $rs['name'];
-                  			$temp['script'] = $testcase['preconditions'];
-                  			array_push($returnrs, $temp);
-                  		}else{
-                  			$sql =  " UPDATE testplan_tcversions SET skip=0 WHERE id={$testcase['tptcid']} " ;
-                  			$this->db->exec_query($sql);
-                  		}
-                  	}
-                  	break;
-                  case 'cmdauto':
-                  		if($rs['name'] == 'CommandLine'){
-                  			if($testcase['skip'] != 1){
-                  				$temp['suite'] = $rs['name'];
-                  				$temp['script'] = $testcase['preconditions'];
-                  				array_push($returnrs, $temp);
-                  			}else{
-                  				$sql =  " UPDATE testplan_tcversions SET skip=0 WHERE id={$testcase['tptcid']} " ;
-                  				$this->db->exec_query($sql);
-                  			}
-                  		};
-                  		break;
-                  case 'memorytest':
-                  		if($rs['name'] == 'MemoryCrash'){
-                  			if($testcase['skip'] != 1){
-                  				$temp['suite'] = $rs['name'];
-                  				$temp['script'] = $testcase['preconditions'];
-                  				array_push($returnrs, $temp);
-                  			}else{
-                  				$sql =  " UPDATE testplan_tcversions SET skip=0 WHERE id={$testcase['tptcid']} " ;
-                  				$this->db->exec_query($sql);
-                  			}
-                  		};
-                  		break;
-                  default:
-                  		if( $rs['name'] == $exec['job_type'] ){
-                  			if($testcase['skip'] != 1){
-                  				$temp['suite'] = $rs['name'];
-                  				$temp['script'] = $testcase['preconditions'];
-                  				if( !stripos($docker_not_support,$rs['preconditions']) ){
-                  					array_push($returnrs, $temp);
-                  				}
-                  			}else{
-                  				$sql =  " UPDATE testplan_tcversions SET skip=0 WHERE id={$testcase['tptcid']} " ;
-                  				$this->db->exec_query($sql);
-                  			}
-                  		};
-                  		break;
-              }
-            }
+  	$where2 = "";
+  	switch($exec['job_type']){
+  		case 'affirm2':
+  			$where2 = " AND NH_TSU.name = '确认测试2.0' ";
+  			break;
+  		case 'affirm3':
+            $where2 = " AND NH_TSU.name = '确认测试3.0' ";
+            break;
+  		case 'affirm3|affirm2':
+  			$where2 = " AND (NH_TSU.name = '确认测试2.0' OR NH_TSU.name = '确认测试3.0') ";
+  			break;
+  		case 'waffirm':
+			$where2 = " AND NH_TSU.name = 'waffirm' " ;
+  			break;
+  		case 'waffirm_X86':
+  			$where2 = " AND NH_TSU.name = 'waffirm_X86' " ;
+  			break;
+  		case 'IGMPSnp性能':
+  			$where2 = " AND NH_TSU.name = 'IgmpSnooping处理性能' ";
+  			break;
+  		case 'IGMPSnp时延':
+  			$where2 = " AND NH_TSU.name = 'IgmpSnooping时延' ";
+  			break;
+  		case '协议收包缓冲':
+  			$where2 = " AND NH_TSU.name = '协议收包缓冲区长度' ";
+  			break;
+  		case '板间协议处理':
+  			$where2 = " AND NH_TSU.name = '板间协议处理能力' ";
+  			break;
+  		case 'cmdauto':
+  			$where2 = " AND NH_TSU.name = 'CommandLine' ";
+  			break;
+  		case 'memorytest':
+  			$where2 = " AND NH_TSU.name = 'MemoryCrash' ";
+  			break;
+  		case 'function':
+            $sql =  " SELECT modules FROM function_exec_record WHERE job_id = '{$jobid}'" ;
+            $rs = $this->db->fetchFirstRow($sql);
+			$where2 = " AND NH_TSU.name IN ( ";
+			$modules = explode('|',$rs['modules']);
+			foreach($modules as $key=>$temp ){
+ 				if ($key == 0){
+     				$where2 .= "'" . $temp . "'";
+    			}else{
+  					$where2 .= ",'" . $temp . "'";
+  				}
+			}
+ 			$where2 .= ")" ;
+  			break;
+  		default :
+  			$where2 = " AND NH_TSU.name = " . $exec['job_type'] ;
+  			break;
+  	}
+  	$filter_no_skip = " AND TPTCV.skip=0 " ;
+  	$filter_skip = " AND TPTCV.skip=1" ;
+	$sqltemp = " SELECT TPTCV.tcversion_id,NH_TC.id as testcase_id,NH_TC.name,NH_TSU.name as suite,TCV.preconditions as script" .
+  			" FROM testplan_tcversions as TPTCV, tcversions as TCV," .
+  			" nodes_hierarchy as NH_TCV, nodes_hierarchy as NH_TC, nodes_hierarchy as NH_TSU" .
+  			" WHERE TPTCV.tcversion_id = TCV.id" .
+  			" AND TPTCV.testplan_id ={$exec['tplan_id']}" .
+  	       	" AND TPTCV.platform_id = {$exec['device_id']}" .
+  			" AND TPTCV.active=1" .
+  			" AND TCV.id = NH_TCV.id" .
+			" AND NH_TCV.parent_id = NH_TC.id" .
+			" AND NH_TC.parent_id = NH_TSU.id" . $where1 . $where2 ;
+	$sql1 = $sqltemp . $filter_no_skip ;
+	$sql2 = $sqltemp . $filter_skip ;
+  	$cases_no_skip = $this->db->get_recordset($sql1) ;
+  	$cases_skip = $this->db->get_recordset($sql2) ;
+    $returnrs = $cases_no_skip ; 
+  	if( $continue_mode == 1 ){
+        $returnrs = array();
+  	    foreach($cases_no_skip as $key=>$testcase){
+            $sql =  " SELECT status FROM executions WHERE tcversion_id={$testcase['tcversion_id']} AND testplan_id={$exec['tplan_id']} AND build_id={$exec['build_id']} AND platform_id={$exec['device_id']} AND stack={$exec['topo_type']} ORDER BY execution_ts DESC " ;
+            $rs = $this->db->fetchFirstRow($sql);
+  		    if( False != $rs ){
+  		        if( $rs['status'] != 'f' ){
+                    $sql =  " DELETE FROM job_testcase WHERE job_id = '{$jobid}' AND testcase = {$testcase['tcversion_id']} ";
+                    $this->db->exec_query($sql);
+                }else{ 
+			        $returnrs[] = $cases_no_skip[$key]; 
+		        }
+  		    }else{ 
+	   		    $returnrs[] = $cases_no_skip[$key];
+	        }
+  	    }
+  	}
+  	foreach($cases_skip as $testcase){
+  		$sql =  "UPDATE testplan_tcversions SET skip=0 WHERE testplan_id={$exec['tplan_id']} AND platform_id={$exec['device_id']} AND tcversion_id={$testcase['tcversion_id']} ";
+  		$this->db->exec_query($sql);
+  	}
    return $returnrs;
   }
 
@@ -1771,40 +1670,46 @@ public function createIssue($testcase, $step, $product, $script, $comment)
     return $rs;
   }
 
-  public function getJobTotalCase($tplan,$device,$suite,$platform)
+  public function getJobTotalCase($tplan_id,$device_id,$build_id,$suite,$platform,$continuerun,$topoType)
   {
-     //$sql =  " SELECT tcversion_id FROM testplan_tcversions WHERE testplan_id={$tplan} AND platform_id={$device} AND active=1 AND skip!=1 ";
-     if($platform == 'moni'){
-     	$sql = " SELECT TPTCV.tcversion_id FROM testplan_tcversions as TPTCV,tcversions as TCV " .
-     		   " WHERE TPTCV.tcversion_id = TCV.id AND TPTCV.testplan_id={$tplan} AND TPTCV.platform_id={$device} AND TPTCV.active=1 AND TPTCV.skip!=1 AND TCV.preconditions LIKE '%.tcl' ";
-     }elseif($platform == 'dauto'){
-     	$sql = " SELECT TPTCV.tcversion_id FROM testplan_tcversions as TPTCV,tcversions as TCV " .
-     		   " WHERE TPTCV.tcversion_id = TCV.id AND TPTCV.testplan_id={$tplan} AND TPTCV.platform_id={$device} AND TPTCV.active=1 AND TPTCV.skip!=1 AND TCV.preconditions LIKE '%.py' ";
-     }else{
-     	$sql =  " SELECT tcversion_id FROM testplan_tcversions WHERE testplan_id={$tplan} AND platform_id={$device} AND active=1 AND skip!=1 ";
-     }     
-     
-     $cases = $this->db->get_recordset($sql);
-     $total = 0;
-     
-     foreach($cases as $testcase){
-            $sql =  " SELECT parent_id FROM nodes_hierarchy WHERE `id`= {$testcase['tcversion_id']} " ;
-            $rs = $this->db->fetchFirstRow($sql);     
-            $sql =  " SELECT parent_id FROM nodes_hierarchy WHERE `id`= {$rs['parent_id']} " ;
-            $rs = $this->db->fetchFirstRow($sql);
-            $sql =  " SELECT name FROM nodes_hierarchy WHERE `id`= {$rs['parent_id']} " ;
-            $rs = $this->db->fetchFirstRow($sql);
+  	$where1 = "";
+  	if($platform == 'moni'){
+  		$where1 = " AND TCV.preconditions LIKE '%.tcl'";
+  	}elseif($platform == 'dauto'){
+  		$where1 = " AND TCV.preconditions LIKE '%.py'";
+  	}
+  	$where2 = " AND NH_TSU.name = '" . $suite . "' ";
+  	if($suite == 'affirm3|affirm2'){
+		$where2 = " AND (NH_TSU.name = '确认测试2.0' OR NH_TSU.name = '确认测试3.0') ";
+	}
 
-            if($suite=='affirm3|affirm2'){
-            	if($rs['name'] == '确认测试3.0'){  ++$total;  }
-            	if($rs['name'] == '确认测试2.0'){  ++$total;  }
-            }else{
-            	if($rs['name'] == $suite){
-            		++$total;
-            	}
-            }
-     }
-   return $total;
+  	$sql = " SELECT TPTCV.tcversion_id,NH_TC.id as testcase_id,NH_TC.name,NH_TSU.name as suite,TCV.preconditions as script" .
+  			" FROM testplan_tcversions as TPTCV, tcversions as TCV," .
+  			" nodes_hierarchy as NH_TCV, nodes_hierarchy as NH_TC, nodes_hierarchy as NH_TSU" .
+  			" WHERE TPTCV.tcversion_id = TCV.id" .
+  			" AND TPTCV.testplan_id ={$tplan_id}" .
+  			" AND TPTCV.platform_id = {$device_id}" .
+  			" AND TPTCV.active=1 AND TPTCV.skip=0 " .
+  			" AND TCV.id = NH_TCV.id" .
+  			" AND NH_TCV.parent_id = NH_TC.id" .
+  			" AND NH_TC.parent_id = NH_TSU.id" . $where1 . $where2 ;
+  	$cases = $this->db->get_recordset($sql) ;
+    $returnrs = count($cases) ;
+  	if( $continuerun == 1 ){
+        $returnrs = 0 ;
+  		foreach($cases as $key=>$testcase){
+  			$sql =  " SELECT status FROM executions WHERE tcversion_id={$testcase['tcversion_id']} AND testplan_id={$tplan_id} AND build_id={$build_id} AND platform_id={$device_id} AND stack={$topoType} ORDER BY execution_ts DESC " ;
+  			$rs = $this->db->fetchFirstRow($sql);
+  			if( False != $rs ){
+  				if( $rs['status'] == 'f' ){
+  					$returnrs++ ;
+  				}
+  			}else{ 
+  				$returnrs++ ;
+  			}
+  		}
+  	}
+  	return $returnrs;
   }
 
   public function getAllRunningjobs()
@@ -2154,7 +2059,7 @@ public function createIssue($testcase, $step, $product, $script, $comment)
       }
   }
 
-  public function addJob($jobid, $platform, $jobtype, $total_case, $productline_id, $tplan_id, $device_id, $build_id, $user, $client_ip,$suite)
+  public function addJob($SkipCheckTopology,$SkipReload,$SkipInitConfig,$EnableWatchdog,$EnablePauseWhenError,$topoType,$continuerun,$jobid, $platform, $jobtype, $total_case, $productline_id, $tplan_id, $device_id, $build_id, $user, $client_ip,$suite)
   {
     $debugMsg = 'Class:' . __CLASS__ . ' - Method: ' . __FUNCTION__;
     $sql = "/* $debugMsg */ SELECT id FROM users WHERE login = '{$user}'" ;
@@ -2164,9 +2069,8 @@ public function createIssue($testcase, $step, $product, $script, $comment)
     $run_time = " ' " . date("H:i:s") . " ' ";
 
     $sql =  "/* $debugMsg */ INSERT INTO running_jobs " .
- 	    " ( job_id, job_type, total_case, productline_id, tplan_id, device_id, build_id, user_id, running_vdi,run_time)" .
-
-            " VALUES ( '{$jobid}', '{$jobtype}', {$total_case}, {$productline_id}, {$tplan_id}, {$device_id}, {$build_id}, {$user_id}, '{$client_ip}', {$run_time} ) ";
+ 	    " (SkipCheckTopology,SkipReload,SkipInitConfig,EnableWatchdog,EnablePauseWhenError,topo_type,continue_mode, job_id, job_type, total_case, productline_id, tplan_id, device_id, build_id, user_id, running_vdi,run_time)" .
+            " VALUES ({$SkipCheckTopology},{$SkipReload},{$SkipInitConfig},{$EnableWatchdog},{$EnablePauseWhenError},{$topoType}, {$continuerun}, '{$jobid}', '{$jobtype}', {$total_case}, {$productline_id}, {$tplan_id}, {$device_id}, {$build_id}, {$user_id}, '{$client_ip}', {$run_time} ) ";
     $this->db->exec_query($sql);
 
     //$sql =  "/* $debugMsg */ SELECT tcversion_id FROM {$this->tables['testplan_tcversions']} WHERE testplan_id ={$tplan_id} AND platform_id = {$device_id} ";
@@ -2464,6 +2368,19 @@ public function createIssue($testcase, $step, $product, $script, $comment)
     $rs = $this->db->get_recordset($sql);
 
     return $rs[0]['name'];
+  }
+  
+  public function isBuildNameIsDynamicCreate($buildid)
+  {
+  	$debugMsg = 'Class:' . __CLASS__ . ' - Method: ' . __FUNCTION__;
+  	$sql = "/* $debugMsg */ SELECT name FROM builds WHERE id = '{$buildid}'" ;
+  	$rs = $this->db->get_recordset($sql);
+  
+  	if( $rs[0]['name'] == 'Dynamic Create' ){
+  		return 1;
+  	}else{
+  		return 0;
+  	}
   }
 
   public function getAllAffirm3Env()

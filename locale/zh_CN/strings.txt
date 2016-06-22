@@ -1269,6 +1269,7 @@ $TLS_title_testplan = "测试计划";
 $TLS_title_dcnvars = "测试例分支";
 $TLS_title_dcnjob = "任务管理";
 $TLS_title_execute = "执行测试";
+$TLS_title_dcnresults = "测试结论";
 $TLS_title_results = "查阅报告";
 $TLS_title_specification = "测试用例";
 $TLS_session_inactivity_timeout_at = "会话空闲过期时间";
